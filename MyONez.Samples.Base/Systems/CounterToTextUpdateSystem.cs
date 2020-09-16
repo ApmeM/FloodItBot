@@ -23,7 +23,11 @@
             var text = entity.GetComponent<TextComponent>();
             var counter = entity.GetComponent<CounterComponent>();
 
-            text.Text = $"     | Player 1 | Player 2 \nSize | {counter.Player1Size, 8} | {counter.Player2Size, 8}\nWins | {counter.Player1Wins, 8} | {counter.Player2Wins, 8}";
+            text.Text = $@"
+Statistic: 
+     |  AI | You 
+Size | {counter.Player1Size, 3} | {counter.Player2Size, 3}
+Wins | {counter.Player1Wins, 3} | {counter.Player2Wins, 3}";
         }
     }
 }
