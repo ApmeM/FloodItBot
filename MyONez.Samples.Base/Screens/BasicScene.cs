@@ -64,12 +64,15 @@
             this.AddEntitySystemExecutionOrder<UpdateCounterUpdateSystem, TextUIUpdateSystem>();
             this.AddEntitySystemExecutionOrder<UIUpdateSystem, TextUIUpdateSystem>();
 
+            var moonTex = this.Content.Load<Texture2D>(ContentPaths.Basic.moon);
+
             var fieldEntity = this.CreateEntity("player");
             fieldEntity.AddComponent<PositionComponent>().Position = Core.Instance.Screen.Center - Vector2.One * MapSize * BlockSize / 2;
             fieldEntity.AddComponent<InputMouseComponent>();
             var turn = fieldEntity.AddComponent<TurnMadeComponent>();
             var field = fieldEntity.AddComponent<FieldComponent>();
             field.Map = new int[MapSize, MapSize];
+            field.Texture = moonTex;
             fieldEntity.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(field.Map, new FloodItAI(turn));
 
             var counterEntity = this.CreateEntity("Counter");
@@ -522,9 +525,7 @@
 
             finalRender.Batch.Clear();
 
-            var texture = map.Texture ?? Graphic.PixelTexture;
-            var subtextureWidth = (float)texture.Width / (float)map.Map.GetLength(0);
-            var subtextureHeight = (float)texture.Height / (float)map.Map.GetLength(1);
+            var texture = map.Texture;
 
             for (var x = 0; x < map.Map.GetLength(0); x++)
             for (var y = 0; y < map.Map.GetLength(1); y++)
@@ -536,7 +537,7 @@
                         y * BasicScene.BlockSize,
                         BasicScene.BlockSize,
                         BasicScene.BlockSize),
-                    new RectangleF(subtextureWidth * x, subtextureHeight * y, subtextureWidth, subtextureHeight),
+                    texture.Bounds,
                     this.ConvertMapToColor(map.Map[x, y]),
                     depth);
             }

@@ -126,12 +126,15 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Screens.UpdateCounterUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
                 this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
 
+                var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.Basic.moon);
+
                 var fieldEntity = this.CreateEntity("player");
                 fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = Microsoft.Xna.Framework.Vector2.op_Subtraction(MyONez.Core.Instance.Screen.Center.$clone(), Microsoft.Xna.Framework.Vector2.op_Division$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), MyONez.Samples.Base.Screens.BasicScene.MapSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize), 2));
                 fieldEntity.AddComponent(MyONez.ECS.Components.InputMouseComponent);
                 var turn = fieldEntity.AddComponent(MyONez.Samples.Base.Screens.TurnMadeComponent);
                 var field = fieldEntity.AddComponent(MyONez.Samples.Base.Screens.FieldComponent);
                 field.Map = System.Array.create(0, null, System.Int32, 30, 30);
+                field.Texture = moonTex;
                 fieldEntity.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(field.Map, new MyONez.Samples.Base.Screens.FloodItAI(turn));
 
                 var counterEntity = this.CreateEntity("Counter");
@@ -225,13 +228,11 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                 finalRender.Batch.Clear();
 
-                var texture = map.Texture || MyONez.Graphics.Graphic.PixelTexture;
-                var subtextureWidth = texture.Width / System.Array.getLength(map.Map, 0);
-                var subtextureHeight = texture.Height / System.Array.getLength(map.Map, 1);
+                var texture = map.Texture;
 
                 for (var x = 0; x < System.Array.getLength(map.Map, 0); x = (x + 1) | 0) {
                     for (var y = 0; y < System.Array.getLength(map.Map, 1); y = (y + 1) | 0) {
-                        finalRender.Batch.Draw(texture, new MyONez.Maths.RectangleF.$ctor2(Bridge.Int.mul(x, MyONez.Samples.Base.Screens.BasicScene.BlockSize), Bridge.Int.mul(y, MyONez.Samples.Base.Screens.BasicScene.BlockSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize, MyONez.Samples.Base.Screens.BasicScene.BlockSize), new MyONez.Maths.RectangleF.$ctor2(subtextureWidth * x, subtextureHeight * y, subtextureWidth, subtextureHeight), this.ConvertMapToColor(map.Map.get([x, y])), depth);
+                        finalRender.Batch.Draw(texture, new MyONez.Maths.RectangleF.$ctor2(Bridge.Int.mul(x, MyONez.Samples.Base.Screens.BasicScene.BlockSize), Bridge.Int.mul(y, MyONez.Samples.Base.Screens.BasicScene.BlockSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize, MyONez.Samples.Base.Screens.BasicScene.BlockSize), MyONez.Maths.RectangleF.op_Implicit$1(texture.Bounds.$clone()), this.ConvertMapToColor(map.Map.get([x, y])), depth);
                     }
                 }
 
