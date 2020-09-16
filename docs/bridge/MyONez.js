@@ -436,16 +436,19 @@ Bridge.assembly("MyONez", function ($asm, globals) {
         inherits: [LocomotorECS.Component],
         fields: {
             Camera: null,
-            ShakeDegredation: 0,
+            ShakeDegradation: 0,
             ShakeDirection: null,
             ShakeIntensity: 0,
-            ShakeOffset: null
+            ShakeOffset: null,
+            OriginalPosition: null
         },
         ctors: {
             init: function () {
                 this.ShakeDirection = new Microsoft.Xna.Framework.Vector2();
                 this.ShakeOffset = new Microsoft.Xna.Framework.Vector2();
-                this.ShakeDegredation = 0.95;
+                this.OriginalPosition = new Microsoft.Xna.Framework.Vector2();
+                this.ShakeDegradation = 0.95;
+                this.OriginalPosition = Microsoft.Xna.Framework.Vector2.Zero.$clone();
             },
             ctor: function (camera) {
                 this.$initialize();
@@ -465,7 +468,7 @@ Bridge.assembly("MyONez", function ($asm, globals) {
              * @memberof MyONez.ECS.Components.CameraShakeComponent
              * @param   {number}                             shakeIntensity      how much should we shake it
              * @param   {number}                             shakeDegredation    higher values cause faster degradation
-             * @param   {Microsoft.Xna.Framework.Vector2}    shakeDirection      Vector3.zero will result in a shake on just the x/y axis. any other values will result in the passed
+             * @param   {Microsoft.Xna.Framework.Vector2}    shakeDirection      Vector2.Zero will result in a shake on just the x/y axis. any other values will result in the passed
                  in shakeDirection * intensity being the offset the camera is moved
              * @return  {void}
              */
@@ -484,7 +487,7 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                     shakeDegredation = 0.95;
                 }
 
-                this.ShakeDegredation = shakeDegredation;
+                this.ShakeDegradation = shakeDegredation;
             }
         }
     });
@@ -2240,6 +2243,10 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                     return;
                 }
 
+                if (Microsoft.Xna.Framework.Vector2.op_Equality(shake.OriginalPosition.$clone(), Microsoft.Xna.Framework.Vector2.Zero.$clone())) {
+                    shake.OriginalPosition = shake.Camera.Position.$clone();
+                }
+
                 if (Math.abs(shake.ShakeIntensity) > 0.0) {
                     shake.ShakeOffset = shake.ShakeDirection.$clone();
                     if (shake.ShakeOffset.X !== 0.0 || shake.ShakeOffset.Y !== 0.0) {
@@ -2251,10 +2258,12 @@ Bridge.assembly("MyONez", function ($asm, globals) {
 
                     // ToDo: this needs to be multiplied by camera zoom so that less shake gets applied when zoomed in
                     shake.ShakeOffset = Microsoft.Xna.Framework.Vector2.op_Multiply$1(shake.ShakeOffset.$clone(), shake.ShakeIntensity);
-                    shake.ShakeIntensity *= -shake.ShakeDegredation;
+                    shake.ShakeIntensity *= -shake.ShakeDegradation;
                     if (Math.abs(shake.ShakeIntensity) <= 0.01) {
                         shake.ShakeIntensity = 0.0;
                         shake.Enabled = false;
+                        shake.ShakeOffset = Microsoft.Xna.Framework.Vector2.op_Subtraction(shake.OriginalPosition.$clone(), shake.Camera.Position.$clone());
+                        shake.OriginalPosition = Microsoft.Xna.Framework.Vector2.Zero.$clone();
                     }
                 }
 

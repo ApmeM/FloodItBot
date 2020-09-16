@@ -10,7 +10,7 @@
     {
         internal readonly Camera Camera;
 
-        internal float ShakeDegredation = 0.95f;
+        internal float ShakeDegradation = 0.95f;
 
         internal Vector2 ShakeDirection;
 
@@ -23,6 +23,8 @@
             this.Camera = camera;
         }
 
+        internal Vector2 OriginalPosition = Vector2.Zero;
+
         /// <summary>
         ///     if the shake is already running this will overwrite the current values only if shakeIntensity > the current
         ///     shakeIntensity.
@@ -31,7 +33,7 @@
         /// <param name="shakeIntensity">how much should we shake it</param>
         /// <param name="shakeDegredation">higher values cause faster degradation</param>
         /// <param name="shakeDirection">
-        ///     Vector3.zero will result in a shake on just the x/y axis. any other values will result in the passed
+        ///     Vector2.Zero will result in a shake on just the x/y axis. any other values will result in the passed
         ///     in shakeDirection * intensity being the offset the camera is moved
         /// </param>
         public void Shake(float shakeIntensity = 15f, float shakeDegredation = 0.9f, Vector2 shakeDirection = default)
@@ -49,7 +51,7 @@
                 shakeDegredation = 0.95f;
             }
 
-            this.ShakeDegredation = shakeDegredation;
+            this.ShakeDegradation = shakeDegredation;
         }
     }
 }

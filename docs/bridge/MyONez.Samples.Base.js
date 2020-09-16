@@ -20,7 +20,6 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         inherits: [BrainAI.AI.FSM.State$1(System.Array.type(System.Int32, 2))],
         fields: {
             turn: null,
-            delay: 0,
             copyArray: null
         },
         ctors: {
@@ -32,8 +31,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         },
         methods: {
             Update: function () {
-                this.delay = (this.delay + 1) | 0;
-                if (this.delay < MyONez.Samples.Base.Screens.BasicScene.GameSpeed) {
+                if (this.turn.TurnMade) {
                     return;
                 }
 
@@ -41,6 +39,10 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var maxColor = 0;
 
                 for (var i = 0; i < 5; i = (i + 1) | 0) {
+                    if (this.Context.get([0, 0]) === i || this.Context.get([((System.Array.getLength(this.Context, 0) - 1) | 0), ((System.Array.getLength(this.Context, 1) - 1) | 0)]) === i) {
+                        continue;
+                    }
+
                     this.copyArray = this.copyArray || System.Array.create(0, null, System.Int32, System.Array.getLength(this.Context, 0), System.Array.getLength(this.Context, 1));
                     System.Array.copy(this.Context, 0, this.copyArray, 0, this.Context.length);
                     this.FloodIt(this.copyArray, i);
@@ -51,7 +53,6 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                     }
                 }
 
-                this.delay = 0;
                 for (var x = 0; x < System.Array.getLength(this.Context, 0); x = (x + 1) | 0) {
                     for (var y = 0; y < System.Array.getLength(this.Context, 1); y = (y + 1) | 0) {
                         if (maxColor !== this.Context.get([x, y])) {
@@ -60,6 +61,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                         this.turn.X = x;
                         this.turn.Y = y;
+                        this.turn.TurnMade = true;
                         return;
                     }
                 }
@@ -205,8 +207,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
     Bridge.define("MyONez.Samples.Base.AI.LineFloodItAI", {
         inherits: [BrainAI.AI.FSM.State$1(System.Array.type(System.Int32, 2))],
         fields: {
-            turn: null,
-            delay: 0
+            turn: null
         },
         ctors: {
             ctor: function (turn) {
@@ -217,12 +218,10 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         },
         methods: {
             Update: function () {
-                this.delay = (this.delay + 1) | 0;
-                if (this.delay < MyONez.Samples.Base.Screens.BasicScene.GameSpeed) {
+                if (this.turn.TurnMade) {
                     return;
                 }
 
-                this.delay = 0;
                 var color = this.Context.get([0, 0]);
                 for (var x = 0; x < System.Array.getLength(this.Context, 0); x = (x + 1) | 0) {
                     for (var y = 0; y < System.Array.getLength(this.Context, 1); y = (y + 1) | 0) {
@@ -232,6 +231,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                         this.turn.X = x;
                         this.turn.Y = y;
+                        this.turn.TurnMade = true;
                         return;
                     }
                 }
@@ -249,8 +249,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
     Bridge.define("MyONez.Samples.Base.AI.RandomFloodItAI", {
         inherits: [BrainAI.AI.FSM.State$1(System.Array.type(System.Int32, 2))],
         fields: {
-            turn: null,
-            delay: 0
+            turn: null
         },
         ctors: {
             ctor: function (turn) {
@@ -261,19 +260,17 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         },
         methods: {
             Update: function () {
-                this.delay = (this.delay + 1) | 0;
-                if (this.delay < MyONez.Samples.Base.Screens.BasicScene.GameSpeed) {
+                if (this.turn.TurnMade) {
                     return;
                 }
 
-                this.delay = 0;
                 var color = this.Context.get([0, 0]);
 
                 this.turn.X = MyONez.Maths.Random.NextInt(System.Array.getLength(this.Context, 0));
                 this.turn.Y = MyONez.Maths.Random.NextInt(System.Array.getLength(this.Context, 1));
 
-                if (color === this.Context.get([this.turn.X, this.turn.Y])) {
-                    this.delay = 1000;
+                if (color !== this.Context.get([this.turn.X, this.turn.Y])) {
+                    this.turn.TurnMade = true;
                 }
             }
         }
@@ -281,10 +278,11 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
     Bridge.define("MyONez.Samples.Base.Components.CounterComponent", {
         inherits: [LocomotorECS.Component],
-        props: {
-            Count: 0,
-            StatisticWins: 0,
-            StatisticCount: 0,
+        fields: {
+            Player1Size: 0,
+            Player2Size: 0,
+            Player1Wins: 0,
+            Player2Wins: 0,
             GameOver: false
         }
     });
@@ -303,11 +301,22 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         }
     });
 
+    Bridge.define("MyONez.Samples.Base.Components.PlayerSwitcherComponent", {
+        inherits: [LocomotorECS.Component],
+        props: {
+            Player2: null,
+            Player1: null,
+            Player: 0
+        }
+    });
+
     Bridge.define("MyONez.Samples.Base.Components.TurnMadeComponent", {
         inherits: [LocomotorECS.Component],
         fields: {
+            Player: 0,
             X: 0,
-            Y: 0
+            Y: 0,
+            TurnMade: false
         }
     });
 
@@ -376,7 +385,6 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.$initialize();
                 MyONez.Core.ctor.call(this, 650, 800);
                 this.Window.AllowUserResizing = true;
-                this.IsMouseVisible = false;
             }
         },
         methods: {
@@ -392,39 +400,38 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         statics: {
             fields: {
                 BlockSize: 0,
-                GameSpeed: 0,
-                MapSize: 0,
-                AvailableTurns: 0
+                MapSize: 0
             },
             ctors: {
                 init: function () {
                     this.BlockSize = 20;
-                    this.GameSpeed = 5;
                     this.MapSize = 30;
-                    this.AvailableTurns = 49;
                 }
             }
         },
         ctors: {
             ctor: function () {
+                var $t;
                 this.$initialize();
                 MyONez.ECS.Scene.ctor.call(this);
-                this.SetDesignResolution(720, 720, MyONez.Graphics.ResolutionPolicy.SceneResolutionPolicy.None);
-                MyONez.Core.Instance.Screen.SetSize(720, 720);
+                this.SetDesignResolution(600, 800, MyONez.Graphics.ResolutionPolicy.SceneResolutionPolicy.None);
+                MyONez.Core.Instance.Screen.SetSize(600, 800);
 
                 this.AddRenderer(MyONez.Graphics.Renderers.DefaultRenderer, new MyONez.Graphics.Renderers.DefaultRenderer());
 
                 this.AddEntitySystem(new MyONez.Samples.Base.Systems.FieldMeshGeneratorSystem());
-                this.AddEntitySystem(new MyONez.Samples.Base.Systems.FieldClickUpdateSystem());
+                this.AddEntitySystem(new MyONez.Samples.Base.Systems.FieldClickUpdateSystem(this));
                 this.AddEntitySystem(new MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem(this));
                 this.AddEntitySystem(new MyONez.Samples.Base.Systems.CounterToTextUpdateSystem());
                 this.AddEntitySystem(new MyONez.Samples.Base.Systems.GameOverUpdateSystem(this));
                 this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem());
                 this.AddEntitySystem(new BrainAI.ECS.EntitySystems.AIUpdateSystem());
                 this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
+                this.AddEntitySystem(new MyONez.Samples.Base.Systems.TurnSelectorUpdateSystem());
 
-                this.AddEntitySystemExecutionOrder(BrainAI.ECS.EntitySystems.AIUpdateSystem, MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem);
-                this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.FieldClickUpdateSystem, MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem);
+                this.AddEntitySystemExecutionOrder(BrainAI.ECS.EntitySystems.AIUpdateSystem, MyONez.Samples.Base.Systems.TurnSelectorUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.FieldClickUpdateSystem, MyONez.Samples.Base.Systems.TurnSelectorUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.TurnSelectorUpdateSystem, MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem);
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem, MyONez.Samples.Base.Systems.FieldMeshGeneratorSystem);
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem, MyONez.Samples.Base.Systems.GameOverUpdateSystem);
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.ApplyTurnUpdateSystem, MyONez.Samples.Base.Systems.CounterToTextUpdateSystem);
@@ -436,17 +443,35 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                 var fieldEntity = this.CreateEntity("Field");
                 fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = Microsoft.Xna.Framework.Vector2.op_Subtraction(MyONez.Core.Instance.Screen.Center.$clone(), Microsoft.Xna.Framework.Vector2.op_Division$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), MyONez.Samples.Base.Screens.BasicScene.MapSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize), 2));
-                fieldEntity.AddComponent(MyONez.ECS.Components.InputMouseComponent);
-                var turn = fieldEntity.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                fieldEntity.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                fieldEntity.AddComponent$1(MyONez.ECS.Components.CameraShakeComponent, new MyONez.ECS.Components.CameraShakeComponent(this.Camera));
                 var field = fieldEntity.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
                 field.Map = System.Array.create(0, null, System.Int32, 30, 30);
                 field.Texture = moonTex;
-                fieldEntity.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(field.Map, new MyONez.Samples.Base.AI.GreedyFloodItAI(turn));
+
+                var player1 = this.CreateEntity("Player1");
+                var player1Turn = player1.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                player1Turn.Player = 0;
+                player1Turn.TurnMade = false;
+                player1.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(field.Map, new MyONez.Samples.Base.AI.GreedyFloodItAI(player1Turn));
+
+                var player2 = this.CreateEntity("Player2");
+                var player2Turn = player2.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                player2Turn.Player = 1;
+                player2Turn.TurnMade = true;
+                player2.AddComponent(MyONez.ECS.Components.InputMouseComponent);
+
+                fieldEntity.AddComponent$1(MyONez.Samples.Base.Components.PlayerSwitcherComponent, ($t = new MyONez.Samples.Base.Components.PlayerSwitcherComponent(), $t.Player1 = player1Turn, $t.Player2 = player2Turn, $t));
 
                 var counterEntity = this.CreateEntity("Counter");
                 var counter = counterEntity.AddComponent(MyONez.Samples.Base.Components.CounterComponent);
                 counterEntity.AddComponent(GeonBit.UI.ECS.Components.TextComponent).Text = "Test text;";
                 counterEntity.AddComponent(MyONez.ECS.Components.ColorComponent).Color = Microsoft.Xna.Framework.Color.Gray.$clone();
+
+                var help = this.CreateEntity("Help");
+                var ui = help.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
+                ui.UserInterface.ShowCursor = false;
+                ui.UserInterface.AddEntity(($t = new GeonBit.UI.Entities.Button.$ctor1("?", GeonBit.UI.Entities.ButtonSkin.Default, GeonBit.UI.Entities.Anchor.TopRight, Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), 50)), $t.OnClick = $asm.$.MyONez.Samples.Base.Screens.BasicScene.f1, $t));
 
                 this.Restart(field, counter);
             }
@@ -460,8 +485,17 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 }
 
                 counter.GameOver = false;
-                counter.Count = 0;
+                counter.Player1Size = 1;
+                counter.Player2Size = 1;
             }
+        }
+    });
+
+    Bridge.ns("MyONez.Samples.Base.Screens.BasicScene", $asm.$);
+
+    Bridge.apply($asm.$.MyONez.Samples.Base.Screens.BasicScene, {
+        f1: function (b) {
+            GeonBit.UI.Utils.MessageBox.ShowMsgBox$1("Help", "Turn base flood it game.\n AIBot start in top left corner. \nYou start in bottom right corner. \nEach turn you select a color to flood your corner with by clicking on a colored cell on a field. \nIf any player reach size more then half of a field - game is over.");
         }
     });
 
@@ -481,32 +515,37 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
             DoAction$1: function (entity, gameTime) {
                 LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
                 var map = entity.GetComponent(MyONez.Samples.Base.Components.FieldComponent);
-                var position = entity.GetComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                var turn = entity.GetComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
 
-                var x = position.X;
-                var y = position.Y;
+                var x = turn.X;
+                var y = turn.Y;
                 if (x < 0 || y < 0 || x > System.Array.getLength(map.Map, 0) || y > System.Array.getLength(map.Map, 1)) {
                     return;
                 }
 
                 var color = map.Map.get([x, y]);
 
-                if (color === map.Map.get([0, 0])) {
+                if (color === map.Map.get([0, 0]) || color === map.Map.get([((System.Array.getLength(map.Map, 0) - 1) | 0), ((System.Array.getLength(map.Map, 1) - 1) | 0)])) {
                     return;
                 }
 
                 var counterEntity = this.scene.FindEntity("Counter");
                 var counter = counterEntity.GetComponent(MyONez.Samples.Base.Components.CounterComponent);
-                counter.Count = (counter.Count + 1) | 0;
 
-                this.FloodIt(map.Map, color);
+                if (turn.Player === 0) {
+                    this.FloodIt(map.Map, color, 0, 0);
+                    counter.Player1Size = this.Calc(map.Map, 0, 0);
+                } else {
+                    this.FloodIt(map.Map, color, ((System.Array.getLength(map.Map, 0) - 1) | 0), ((System.Array.getLength(map.Map, 1) - 1) | 0));
+                    counter.Player2Size = this.Calc(map.Map, ((System.Array.getLength(map.Map, 0) - 1) | 0), ((System.Array.getLength(map.Map, 1) - 1) | 0));
+                }
             },
-            FloodIt: function (map, floodColor) {
+            FloodIt: function (map, floodColor, x, y) {
                 var $t;
-                var color = map.get([0, 0]);
+                var color = map.get([x, y]);
 
                 var frontier = new (System.Collections.Generic.Queue$1(Microsoft.Xna.Framework.Point)).ctor();
-                frontier.Enqueue(new Microsoft.Xna.Framework.Point.$ctor2(0, 0));
+                frontier.Enqueue(new Microsoft.Xna.Framework.Point.$ctor2(x, y));
 
                 var visited = new (System.Collections.Generic.HashSet$1(Microsoft.Xna.Framework.Point)).ctor();
 
@@ -537,6 +576,47 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                         }
                     }
                 }
+            },
+            Calc: function (map, x, y) {
+                var $t;
+                var color = map.get([x, y]);
+
+                var result = 0;
+
+                var frontier = new (System.Collections.Generic.Queue$1(Microsoft.Xna.Framework.Point)).ctor();
+                frontier.Enqueue(new Microsoft.Xna.Framework.Point.$ctor2(x, y));
+
+                var visited = new (System.Collections.Generic.HashSet$1(Microsoft.Xna.Framework.Point)).ctor();
+
+                while (frontier.Count > 0) {
+                    var current = frontier.Dequeue().$clone();
+
+                    $t = Bridge.getEnumerator(this.GetNeighbors(current.$clone()), Microsoft.Xna.Framework.Point);
+                    try {
+                        while ($t.moveNext()) {
+                            var next = $t.Current.$clone();
+                            if (!this.IsInMap(map, next.$clone())) {
+                                continue;
+                            }
+
+                            if (map.get([next.X, next.Y]) !== color) {
+                                continue;
+                            }
+
+                            if (!visited.contains(next.$clone())) {
+                                frontier.Enqueue(next.$clone());
+                                visited.add(next.$clone());
+                                result = (result + 1) | 0;
+                            }
+                        }
+                    } finally {
+                        if (Bridge.is($t, System.IDisposable)) {
+                            $t.System$IDisposable$Dispose();
+                        }
+                    }
+                }
+
+                return result;
             },
             IsInMap: function (map, next) {
                 return next.X >= 0 && next.Y >= 0 && next.X < System.Array.getLength(map, 0) && next.Y < System.Array.getLength(map, 1);
@@ -605,17 +685,21 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var text = entity.GetComponent(GeonBit.UI.ECS.Components.TextComponent);
                 var counter = entity.GetComponent(MyONez.Samples.Base.Components.CounterComponent);
 
-                text.Text = System.String.format("Moves: {0}. \n Wins: {1} / {2} = {3}", Bridge.box(((MyONez.Samples.Base.Screens.BasicScene.AvailableTurns - counter.Count) | 0), System.Int32), Bridge.box(counter.StatisticWins, System.Int32), Bridge.box(counter.StatisticCount, System.Int32), Bridge.box(((Bridge.Int.div(Bridge.Int.mul(counter.StatisticWins, 100), Math.max(1, counter.StatisticCount))) | 0), System.Int32));
+                text.Text = System.String.format("     | Player 1 | Player 2 \nSize | {0,8} | {1,8}\nWins | {2,8} | {3,8}", Bridge.box(counter.Player1Size, System.Int32), Bridge.box(counter.Player2Size, System.Int32), Bridge.box(counter.Player1Wins, System.Int32), Bridge.box(counter.Player2Wins, System.Int32));
             }
         }
     });
 
     Bridge.define("MyONez.Samples.Base.Systems.FieldClickUpdateSystem", {
         inherits: [LocomotorECS.EntityProcessingSystem],
+        fields: {
+            scene: null
+        },
         ctors: {
-            ctor: function () {
+            ctor: function (scene) {
                 this.$initialize();
                 LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.Samples.Base.Components.TurnMadeComponent, MyONez.ECS.Components.InputMouseComponent]));
+                this.scene = scene;
             }
         },
         methods: {
@@ -623,15 +707,36 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
                 var turn = entity.GetComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
                 var input = entity.GetComponent(MyONez.ECS.Components.InputMouseComponent);
-                var position = entity.GetComponent(MyONez.ECS.Components.PositionComponent);
 
                 if (!input.LeftMouseButtonPressed) {
                     return;
                 }
 
+                if (turn.TurnMade) {
+                    return;
+                }
+
+                var field = this.scene.FindEntity("Field");
+                var position = field.GetComponent(MyONez.ECS.Components.PositionComponent);
+                var map = field.GetComponent(MyONez.Samples.Base.Components.FieldComponent).Map;
+
                 var location = Microsoft.Xna.Framework.Vector2.op_Division$1((Microsoft.Xna.Framework.Vector2.op_Subtraction(input.MousePosition.$clone(), position.Position.$clone())), MyONez.Samples.Base.Screens.BasicScene.BlockSize);
                 turn.X = Bridge.Int.clip32(location.X);
                 turn.Y = Bridge.Int.clip32(location.Y);
+
+                if (!this.IsInMap(map, turn)) {
+                    return;
+                }
+
+                if (map.get([0, 0]) === map.get([turn.X, turn.Y]) || map.get([((System.Array.getLength(map, 0) - 1) | 0), ((System.Array.getLength(map, 1) - 1) | 0)]) === map.get([turn.X, turn.Y])) {
+                    field.GetComponent(MyONez.ECS.Components.CameraShakeComponent).Shake();
+                    return;
+                }
+
+                turn.TurnMade = true;
+            },
+            IsInMap: function (map, next) {
+                return next.X >= 0 && next.Y >= 0 && next.X < System.Array.getLength(map, 0) && next.Y < System.Array.getLength(map, 1);
             }
         }
     });
@@ -731,34 +836,62 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 }
 
                 var field = this.scene.FindEntity("Field").GetComponent(MyONez.Samples.Base.Components.FieldComponent);
-                if (counter.Count === MyONez.Samples.Base.Screens.BasicScene.AvailableTurns) {
-                    this.GameOver(counter, field, false);
-                    return;
+                if (counter.Player1Size > 450 || counter.Player2Size > 450) {
+                    this.GameOver(counter, field);
                 }
-
-                var color = field.Map.get([0, 0]);
-
-                for (var x = 0; x < System.Array.getLength(field.Map, 0); x = (x + 1) | 0) {
-                    for (var y = 0; y < System.Array.getLength(field.Map, 1); y = (y + 1) | 0) {
-                        if (field.Map.get([x, y]) !== color) {
-                            return;
-                        }
-                    }
-                }
-
-                this.GameOver(counter, field, true);
             },
-            GameOver: function (counter, field, isWin) {
+            GameOver: function (counter, field) {
                 var $t;
-                if (isWin) {
-                    counter.StatisticWins = (counter.StatisticWins + 1) | 0;
+                if (counter.Player1Size > counter.Player2Size) {
+                    counter.Player1Wins = (counter.Player1Wins + 1) | 0;
                 }
-                counter.StatisticCount = (counter.StatisticCount + 1) | 0;
+
+                if (counter.Player1Size < counter.Player2Size) {
+                    counter.Player2Wins = (counter.Player2Wins + 1) | 0;
+                }
+
                 counter.GameOver = true;
                 MyONez.Core.Instance.SwitchScene$2(($t = new MyONez.AdditionalContent.SceneTransitions.WindTransition(), $t.SceneLoadAction = Bridge.fn.bind(this, function () {
                     this.scene.Restart(field, counter);
                     return this.scene;
                 }), $t));
+            }
+        }
+    });
+
+    Bridge.define("MyONez.Samples.Base.Systems.TurnSelectorUpdateSystem", {
+        inherits: [LocomotorECS.EntityProcessingSystem],
+        ctors: {
+            ctor: function () {
+                this.$initialize();
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.Samples.Base.Components.TurnMadeComponent, MyONez.Samples.Base.Components.PlayerSwitcherComponent]));
+            }
+        },
+        methods: {
+            DoAction$1: function (entity, gameTime) {
+                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
+                var turn = entity.GetComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
+                var switcher = entity.GetComponent(MyONez.Samples.Base.Components.PlayerSwitcherComponent);
+
+                var player;
+                var playerStart;
+                if (switcher.Player === switcher.Player1.Player) {
+                    player = switcher.Player1;
+                    playerStart = switcher.Player2;
+                } else {
+                    player = switcher.Player2;
+                    playerStart = switcher.Player1;
+                }
+
+                if (!player.TurnMade) {
+                    return;
+                }
+
+                turn.X = player.X;
+                turn.Y = player.Y;
+                turn.Player = player.Player;
+                switcher.Player = (1 - switcher.Player) | 0;
+                playerStart.TurnMade = false;
             }
         }
     });

@@ -8,7 +8,6 @@
     using Microsoft.Xna.Framework;
 
     using MyONez.Samples.Base.Components;
-    using MyONez.Samples.Base.Screens;
 
     /// <summary>
     /// Statistic 90%
@@ -22,13 +21,11 @@
             this.turn = turn;
         }
 
-        private int delay;
         private int[,] copyArray;
 
         public override void Update()
         {
-            this.delay++;
-            if (this.delay < BasicScene.GameSpeed)
+            if (this.turn.TurnMade)
             {
                 return;
             }
@@ -38,18 +35,23 @@
 
             for (var i = 0; i < 5; i++)
             {
+                if (this.Context[0, 0] == i
+                    || this.Context[this.Context.GetLength(0) - 1, this.Context.GetLength(1) - 1] == i)
+                {
+                    continue;
+                }
+
                 this.copyArray = this.copyArray ?? new int[this.Context.GetLength(0), this.Context.GetLength(1)];
                 Array.Copy(this.Context, this.copyArray, this.Context.Length);
                 this.FloodIt(this.copyArray, i);
                 var value = this.Calc(this.copyArray);
-                if(maxValue < value)
+                if (maxValue < value)
                 {
                     maxValue = value;
                     maxColor = i;
                 }
             }
 
-            this.delay = 0;
             for (var x = 0; x < this.Context.GetLength(0); x++)
             for (var y = 0; y < this.Context.GetLength(1); y++)
             {
@@ -60,6 +62,7 @@
 
                 this.turn.X = x;
                 this.turn.Y = y;
+                this.turn.TurnMade = true;
                 return;
             }
         }
