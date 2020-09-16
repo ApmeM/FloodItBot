@@ -4,12 +4,10 @@
 
     public class CounterComponent : Component
     {
-        public int Count { get; set; }
-
-        public int StatisticWins { get; set; }
-
-        public int StatisticCount { get; set; }
-
-        public bool GameOver { get; set; }
+        public int Player1Size;
+        public int Player2Size;
+        public int Player1Wins;
+        public int Player2Wins;
+        public bool GameOver;
     }
 }

@@ -15,7 +15,6 @@ namespace MyONez.Samples.Base
             : base(650, 800)
         {
             this.Window.AllowUserResizing = true;
-            this.IsMouseVisible = false;
         }
 
         protected override void Initialize()

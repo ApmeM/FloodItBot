@@ -30,33 +30,24 @@
             }
 
             var field = this.scene.FindEntity("Field").GetComponent<FieldComponent>();
-            if (counter.Count == BasicScene.AvailableTurns)
+            if (counter.Player1Size > BasicScene.MapSize * BasicScene.MapSize / 2 || counter.Player2Size > BasicScene.MapSize * BasicScene.MapSize / 2)
             {
-                this.GameOver(counter, field, false);
-                return;
+                this.GameOver(counter, field);
             }
-
-            var color = field.Map[0, 0];
-
-            for (var x = 0; x < field.Map.GetLength(0); x++)
-            for (var y = 0; y < field.Map.GetLength(1); y++)
-            {
-                if(field.Map[x,y] != color)
-                {
-                    return;
-                }
-            }
-
-            this.GameOver(counter, field, true);
         }
 
-        private void GameOver(CounterComponent counter, FieldComponent field, bool isWin)
+        private void GameOver(CounterComponent counter, FieldComponent field)
         {
-            if (isWin)
+            if (counter.Player1Size > counter.Player2Size)
             {
-                counter.StatisticWins++;
+                counter.Player1Wins++;
             }
-            counter.StatisticCount++;
+
+            if (counter.Player1Size < counter.Player2Size)
+            {
+                counter.Player2Wins++;
+            }
+            
             counter.GameOver = true;
             Core.Instance.SwitchScene(
                 new WindTransition

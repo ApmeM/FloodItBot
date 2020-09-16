@@ -5,6 +5,8 @@
     using LocomotorECS;
     using LocomotorECS.Matching;
 
+    using Microsoft.Xna.Framework;
+
     using MyONez.ECS.Components;
 
     using Random = MyONez.Maths.Random;
@@ -27,6 +29,11 @@
                 return;
             }
 
+            if (shake.OriginalPosition == Vector2.Zero)
+            {
+                shake.OriginalPosition = shake.Camera.Position;
+            }
+
             if (Math.Abs(shake.ShakeIntensity) > 0f)
             {
                 shake.ShakeOffset = shake.ShakeDirection;
@@ -42,11 +49,13 @@
 
                 // ToDo: this needs to be multiplied by camera zoom so that less shake gets applied when zoomed in
                 shake.ShakeOffset *= shake.ShakeIntensity;
-                shake.ShakeIntensity *= -shake.ShakeDegredation;
+                shake.ShakeIntensity *= -shake.ShakeDegradation;
                 if (Math.Abs(shake.ShakeIntensity) <= 0.01f)
                 {
                     shake.ShakeIntensity = 0f;
                     shake.Enabled = false;
+                    shake.ShakeOffset = shake.OriginalPosition - shake.Camera.Position;
+                    shake.OriginalPosition = Vector2.Zero;
                 }
             }
 

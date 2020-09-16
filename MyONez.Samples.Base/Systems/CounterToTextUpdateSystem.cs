@@ -23,8 +23,7 @@
             var text = entity.GetComponent<TextComponent>();
             var counter = entity.GetComponent<CounterComponent>();
 
-            text.Text =
-                $"Moves: {BasicScene.AvailableTurns - counter.Count}. \n Wins: {counter.StatisticWins} / {counter.StatisticCount} = {counter.StatisticWins * 100 / Math.Max(1, counter.StatisticCount)}";
+            text.Text = $"     | Player 1 | Player 2 \nSize | {counter.Player1Size, 8} | {counter.Player2Size, 8}\nWins | {counter.Player1Wins, 8} | {counter.Player2Wins, 8}";
         }
     }
 }
