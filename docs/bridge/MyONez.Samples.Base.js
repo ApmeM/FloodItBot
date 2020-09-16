@@ -404,8 +404,8 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
             },
             ctors: {
                 init: function () {
-                    this.BlockSize = 20;
-                    this.MapSize = 30;
+                    this.BlockSize = 30;
+                    this.MapSize = 20;
                 }
             }
         },
@@ -414,8 +414,8 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var $t;
                 this.$initialize();
                 MyONez.ECS.Scene.ctor.call(this);
-                this.SetDesignResolution(600, 800, MyONez.Graphics.ResolutionPolicy.SceneResolutionPolicy.None);
-                MyONez.Core.Instance.Screen.SetSize(600, 800);
+                this.SetDesignResolution(900, 600, MyONez.Graphics.ResolutionPolicy.SceneResolutionPolicy.None);
+                MyONez.Core.Instance.Screen.SetSize(900, 600);
 
                 this.AddRenderer(MyONez.Graphics.Renderers.DefaultRenderer, new MyONez.Graphics.Renderers.DefaultRenderer());
 
@@ -442,11 +442,11 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.Basic.moon);
 
                 var fieldEntity = this.CreateEntity("Field");
-                fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = Microsoft.Xna.Framework.Vector2.op_Subtraction(MyONez.Core.Instance.Screen.Center.$clone(), Microsoft.Xna.Framework.Vector2.op_Division$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), MyONez.Samples.Base.Screens.BasicScene.MapSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize), 2));
+                fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = Microsoft.Xna.Framework.Vector2.op_Addition(Microsoft.Xna.Framework.Vector2.op_Subtraction(MyONez.Core.Instance.Screen.Center.$clone(), Microsoft.Xna.Framework.Vector2.op_Division$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), MyONez.Samples.Base.Screens.BasicScene.MapSize), MyONez.Samples.Base.Screens.BasicScene.BlockSize), 2)), new Microsoft.Xna.Framework.Vector2.$ctor2(120, 0));
                 fieldEntity.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
                 fieldEntity.AddComponent$1(MyONez.ECS.Components.CameraShakeComponent, new MyONez.ECS.Components.CameraShakeComponent(this.Camera));
                 var field = fieldEntity.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
-                field.Map = System.Array.create(0, null, System.Int32, 30, 30);
+                field.Map = System.Array.create(0, null, System.Int32, 20, 20);
                 field.Texture = moonTex;
 
                 var player1 = this.CreateEntity("Player1");
@@ -460,6 +460,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 player2Turn.Player = 1;
                 player2Turn.TurnMade = true;
                 player2.AddComponent(MyONez.ECS.Components.InputMouseComponent);
+                player2.AddComponent(MyONez.ECS.Components.InputTouchComponent);
 
                 fieldEntity.AddComponent$1(MyONez.Samples.Base.Components.PlayerSwitcherComponent, ($t = new MyONez.Samples.Base.Components.PlayerSwitcherComponent(), $t.Player1 = player1Turn, $t.Player2 = player2Turn, $t));
 
@@ -471,7 +472,11 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var help = this.CreateEntity("Help");
                 var ui = help.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
                 ui.UserInterface.ShowCursor = false;
-                ui.UserInterface.AddEntity(($t = new GeonBit.UI.Entities.Button.$ctor1("?", GeonBit.UI.Entities.ButtonSkin.Default, GeonBit.UI.Entities.Anchor.TopRight, Microsoft.Xna.Framework.Vector2.op_Multiply$1(Microsoft.Xna.Framework.Vector2.One.$clone(), 50)), $t.OnClick = $asm.$.MyONez.Samples.Base.Screens.BasicScene.f1, $t));
+                var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
+                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Help"), $t.OnClick = $asm.$.MyONez.Samples.Base.Screens.BasicScene.f1, $t));
+                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Restart"), $t.OnClick = Bridge.fn.bind(this, function (b) {
+                    this.Restart(field, counter);
+                }), $t));
 
                 this.Restart(field, counter);
             }
@@ -685,7 +690,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var text = entity.GetComponent(GeonBit.UI.ECS.Components.TextComponent);
                 var counter = entity.GetComponent(MyONez.Samples.Base.Components.CounterComponent);
 
-                text.Text = System.String.format("     | Player 1 | Player 2 \nSize | {0,8} | {1,8}\nWins | {2,8} | {3,8}", Bridge.box(counter.Player1Size, System.Int32), Bridge.box(counter.Player2Size, System.Int32), Bridge.box(counter.Player1Wins, System.Int32), Bridge.box(counter.Player2Wins, System.Int32));
+                text.Text = System.String.format("\r\nStatistic: \r\n     |  AI | You \r\nSize | {0,3} | {1,3}\r\nWins | {2,3} | {3,3}", Bridge.box(counter.Player1Size, System.Int32), Bridge.box(counter.Player2Size, System.Int32), Bridge.box(counter.Player1Wins, System.Int32), Bridge.box(counter.Player2Wins, System.Int32));
             }
         }
     });
@@ -706,9 +711,10 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
             DoAction$1: function (entity, gameTime) {
                 LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
                 var turn = entity.GetComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
-                var input = entity.GetComponent(MyONez.ECS.Components.InputMouseComponent);
+                var inputMouse = entity.GetComponent(MyONez.ECS.Components.InputMouseComponent);
+                var inputTouch = entity.GetComponent(MyONez.ECS.Components.InputTouchComponent);
 
-                if (!input.LeftMouseButtonPressed) {
+                if (!inputMouse.LeftMouseButtonPressed && (!inputTouch.IsConnected || !System.Linq.Enumerable.from(inputTouch.CurrentTouches).any())) {
                     return;
                 }
 
@@ -720,7 +726,9 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var position = field.GetComponent(MyONez.ECS.Components.PositionComponent);
                 var map = field.GetComponent(MyONez.Samples.Base.Components.FieldComponent).Map;
 
-                var location = Microsoft.Xna.Framework.Vector2.op_Division$1((Microsoft.Xna.Framework.Vector2.op_Subtraction(input.MousePosition.$clone(), position.Position.$clone())), MyONez.Samples.Base.Screens.BasicScene.BlockSize);
+                var cursorPosition = (inputTouch.IsConnected && System.Linq.Enumerable.from(inputTouch.CurrentTouches).any()) ? System.Linq.Enumerable.from(inputTouch.CurrentTouches).first().Position : inputMouse.MousePosition;
+
+                var location = Microsoft.Xna.Framework.Vector2.op_Division$1((Microsoft.Xna.Framework.Vector2.op_Subtraction(cursorPosition.$clone(), position.Position.$clone())), MyONez.Samples.Base.Screens.BasicScene.BlockSize);
                 turn.X = Bridge.Int.clip32(location.X);
                 turn.Y = Bridge.Int.clip32(location.Y);
 
@@ -836,7 +844,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 }
 
                 var field = this.scene.FindEntity("Field").GetComponent(MyONez.Samples.Base.Components.FieldComponent);
-                if (counter.Player1Size > 450 || counter.Player2Size > 450) {
+                if (counter.Player1Size > 200 || counter.Player2Size > 200) {
                     this.GameOver(counter, field);
                 }
             },

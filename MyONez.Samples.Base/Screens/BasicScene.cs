@@ -28,14 +28,14 @@
 
     public class BasicScene : Scene
     {
-        public const int BlockSize = 20;
+        public const int BlockSize = 30;
 
-        public const int MapSize = 30;
+        public const int MapSize = 20;
 
         public BasicScene()
         {
-            this.SetDesignResolution(600, 800, SceneResolutionPolicy.None);
-            Core.Instance.Screen.SetSize(600, 800);
+            this.SetDesignResolution(900, 600, SceneResolutionPolicy.None);
+            Core.Instance.Screen.SetSize(900, 600);
 
             this.AddRenderer(new DefaultRenderer());
 
@@ -62,7 +62,7 @@
             var moonTex = this.Content.Load<Texture2D>(ContentPaths.Basic.moon);
 
             var fieldEntity = this.CreateEntity("Field");
-            fieldEntity.AddComponent<PositionComponent>().Position = Core.Instance.Screen.Center - Vector2.One * MapSize * BlockSize / 2;
+            fieldEntity.AddComponent<PositionComponent>().Position = Core.Instance.Screen.Center - Vector2.One * MapSize * BlockSize / 2 + new Vector2(BlockSize * 4, 0);
             fieldEntity.AddComponent<TurnMadeComponent>();
             fieldEntity.AddComponent(new CameraShakeComponent(this.Camera));
             var field = fieldEntity.AddComponent<FieldComponent>();
@@ -80,6 +80,7 @@
             player2Turn.Player = 1;
             player2Turn.TurnMade = true;
             player2.AddComponent<InputMouseComponent>();
+            player2.AddComponent<InputTouchComponent>();
 
             fieldEntity.AddComponent(new PlayerSwitcherComponent
             {
@@ -95,10 +96,16 @@
             var help = this.CreateEntity("Help");
             var ui = help.AddComponent<UIComponent>();
             ui.UserInterface.ShowCursor = false;
-            ui.UserInterface.AddEntity(
-                new Button("?", ButtonSkin.Default, Anchor.TopRight, Vector2.One * 50)
+            var panel = ui.UserInterface.AddEntity(new Panel(new Vector2(250, 250), PanelSkin.None, Anchor.CenterLeft));
+            panel.AddChild(
+                new Button("Help")
                 {
                     OnClick = (b) => { MessageBox.ShowMsgBox("Help", "Turn base flood it game.\n AIBot start in top left corner. \nYou start in bottom right corner. \nEach turn you select a color to flood your corner with by clicking on a colored cell on a field. \nIf any player reach size more then half of a field - game is over."); }
+                });
+            panel.AddChild(
+                new Button("Restart")
+                {
+                    OnClick = (b) => { this.Restart(field, counter); }
                 });
 
             this.Restart(field, counter);

@@ -1,9 +1,12 @@
 ﻿namespace MyONez.Samples.Base.Systems
 {
     using System;
+    using System.Linq;
 
     using LocomotorECS;
     using LocomotorECS.Matching;
+
+    using Microsoft.Xna.Framework;
 
     using MyONez.ECS;
     using MyONez.ECS.Components;
@@ -24,9 +27,10 @@
         {
             base.DoAction(entity, gameTime);
             var turn = entity.GetComponent<TurnMadeComponent>();
-            var input = entity.GetComponent<InputMouseComponent>();
+            var inputMouse = entity.GetComponent<InputMouseComponent>();
+            var inputTouch = entity.GetComponent<InputTouchComponent>();
 
-            if (!input.LeftMouseButtonPressed)
+            if (!inputMouse.LeftMouseButtonPressed && (!inputTouch.IsConnected || !inputTouch.CurrentTouches.Any()))
             {
                 return;
             }
@@ -40,7 +44,9 @@
             var position = field.GetComponent<PositionComponent>();
             var map = field.GetComponent<FieldComponent>().Map;
 
-            var location = (input.MousePosition - position.Position) / BasicScene.BlockSize;
+            var cursorPosition = (inputTouch.IsConnected && inputTouch.CurrentTouches.Any()) ? inputTouch.CurrentTouches.First().Position : inputMouse.MousePosition;
+
+            var location = (cursorPosition - position.Position) / BasicScene.BlockSize;
             turn.X = (int)location.X;
             turn.Y = (int)location.Y;
 
