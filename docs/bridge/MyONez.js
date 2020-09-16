@@ -11078,6 +11078,9 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                 this.DestRect = new MyONez.Maths.RectangleF.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(leftTop.X, leftTop.Y), new Microsoft.Xna.Framework.Vector2.$ctor2(rightBottom.X - leftTop.X, rightBottom.Y - leftTop.Y));
                 this.Rotation += Math.acos(r.v.W);
             },
+            SetColor: function (value) {
+                this.Color = value.$clone();
+            },
             GetCenter: function () {
                 return new Microsoft.Xna.Framework.Vector3.$ctor3(this.DestRect.X + this.DestRect.Width / 2, this.DestRect.Y + this.DestRect.Height / 2, 0);
             }
@@ -11148,6 +11151,13 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                 var mesh = this;
                 for (var index = 0; index < mesh.Verts.length; index = (index + 1) | 0) {
                     ($t = mesh.Verts)[System.Array.index(index, $t)].Position = Microsoft.Xna.Framework.Vector3.Transform(($t1 = mesh.Verts)[System.Array.index(index, $t1)].Position.$clone(), transform.$clone());
+                }
+            },
+            SetColor: function (value) {
+                var $t;
+                var mesh = this;
+                for (var index = 0; index < mesh.Verts.length; index = (index + 1) | 0) {
+                    ($t = mesh.Verts)[System.Array.index(index, $t)].Color = value.$clone();
                 }
             },
             GetCenter: function () {
