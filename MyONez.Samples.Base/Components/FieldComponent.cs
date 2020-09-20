@@ -7,7 +7,8 @@
     public class FieldComponent : Component
     {
         public Texture2D Texture;
-        public int ColorCount = 5;
         public int[,] Map;
+        public int BlockSize;
+        public int BlockInterval;
     }
 }

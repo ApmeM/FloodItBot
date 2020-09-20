@@ -14,9 +14,18 @@
         {
         }
 
+        private TimeSpan elapsed = TimeSpan.Zero;
+
         protected override void DoAction(Entity entity, TimeSpan gameTime)
         {
             base.DoAction(entity, gameTime);
+            this.elapsed += gameTime;
+            if (this.elapsed.TotalSeconds < 0.5f)
+            {
+                return;
+            }
+            
+            
             var turn = entity.GetComponent<TurnMadeComponent>();
             var switcher = entity.GetComponent<PlayerSwitcherComponent>();
 
@@ -38,8 +47,9 @@
                 return;
             }
 
-            turn.X = player.X;
-            turn.Y = player.Y;
+            this.elapsed = TimeSpan.Zero;
+
+            turn.Color = player.Color;
             turn.Player = player.Player;
             switcher.Player = 1 - switcher.Player;
             playerStart.TurnMade = false;

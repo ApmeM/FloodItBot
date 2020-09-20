@@ -8,7 +8,6 @@
     using LocomotorECS.Matching;
 
     using MyONez.Samples.Base.Components;
-    using MyONez.Samples.Base.Screens;
 
     public class CounterToTextUpdateSystem : EntityProcessingSystem
     {
@@ -25,9 +24,9 @@
 
             text.Text = $@"
 Statistic: 
-     |  AI | You 
-Size | {counter.Player1Size, 3} | {counter.Player2Size, 3}
-Wins | {counter.Player1Wins, 3} | {counter.Player2Wins, 3}";
+     | {counter.Player1Name, 5} | {counter.Player2Name, 5}
+Size | {counter.Player1Size, 5} | {counter.Player2Size, 5}
+Wins | {counter.Player1Wins, 5} | {counter.Player2Wins, 5}";
         }
     }
 }

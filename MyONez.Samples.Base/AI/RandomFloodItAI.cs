@@ -12,9 +12,15 @@
     {
         private readonly TurnMadeComponent turn;
 
-        public RandomFloodItAI(TurnMadeComponent turn)
+        private readonly int startX;
+
+        private readonly int startY;
+
+        public RandomFloodItAI(TurnMadeComponent turn, int startX, int startY)
         {
             this.turn = turn;
+            this.startX = startX;
+            this.startY = startY;
         }
 
         public override void Update()
@@ -23,16 +29,18 @@
             {
                 return;
             }
-
-            var color = this.Context[0, 0];
-
-            this.turn.X = Random.NextInt(this.Context.GetLength(0));
-            this.turn.Y = Random.NextInt(this.Context.GetLength(1));
-
-            if (color != this.Context[this.turn.X, this.turn.Y])
+            
+            var x = Random.NextInt(this.Context.GetLength(0));
+            var y = Random.NextInt(this.Context.GetLength(1));
+            
+            if (this.Context[0, 0] == this.Context[x, y]
+                || this.Context[this.Context.GetLength(0) - 1, this.Context.GetLength(1) - 1] == this.Context[x, y])
             {
-                this.turn.TurnMade = true;
+                return;
             }
+
+            this.turn.Color = this.Context[x, y];
+            this.turn.TurnMade = true;
         }
     }
 }

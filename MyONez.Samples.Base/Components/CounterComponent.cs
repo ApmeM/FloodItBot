@@ -9,5 +9,7 @@
         public int Player1Wins;
         public int Player2Wins;
         public bool GameOver;
+        public string Player1Name;
+        public string Player2Name;
     }
 }
