@@ -27,14 +27,7 @@
             var map = entity.GetComponent<FieldComponent>();
             var turn = entity.GetComponent<TurnMadeComponent>();
 
-            var x = turn.X;
-            var y = turn.Y;
-            if (x < 0 || y < 0 || x > map.Map.GetLength(0) || y > map.Map.GetLength(1))
-            {
-                return;
-            }
-
-            var color = map.Map[x, y];
+            var color = turn.Color;
 
             if (color == map.Map[0, 0] || color == map.Map[map.Map.GetLength(0) - 1, map.Map.GetLength(1) - 1])
             {

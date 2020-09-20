@@ -23,29 +23,29 @@
         protected override void DoAction(Entity entity, TimeSpan gameTime)
         {
             base.DoAction(entity, gameTime);
-            var map = entity.GetComponent<FieldComponent>();
+            var field = entity.GetComponent<FieldComponent>();
             var finalRender = entity.GetOrCreateComponent<FinalRenderComponent>();
             var effect = entity.GetComponent<SpriteEffectsComponent>()?.SpriteEffects ?? SpriteEffects.None;
             var depth = entity.GetComponent<DepthLayerComponent>()?.Depth ?? 0;
 
-            if (finalRender.Batch.Meshes.Count != map.Map.GetLength(0) * map.Map.GetLength(1))
+            if (finalRender.Batch.Meshes.Count != field.Map.GetLength(0) * field.Map.GetLength(1))
             {
                 finalRender.Batch.Clear();
 
-                var texture = map.Texture;
+                var texture = field.Texture;
 
-                for (var x = 0; x < map.Map.GetLength(0); x++)
-                for (var y = 0; y < map.Map.GetLength(1); y++)
+                for (var x = 0; x < field.Map.GetLength(0); x++)
+                for (var y = 0; y < field.Map.GetLength(1); y++)
                 {
                     finalRender.Batch.Draw(
                         texture,
                         new RectangleF(
-                            x * BasicScene.BlockSize,
-                            y * BasicScene.BlockSize,
-                            BasicScene.BlockSize,
-                            BasicScene.BlockSize),
+                            x * (field.BlockSize + field.BlockInterval),
+                            y * (field.BlockSize + field.BlockInterval),
+                            field.BlockSize,
+                            field.BlockSize),
                         texture.Bounds,
-                        this.ConvertMapToColor(map.Map[x, y]),
+                        this.ConvertMapToColor(field.Map[x, y]),
                         depth);
                 }
 
@@ -59,10 +59,10 @@
             }
             else
             {
-                for (var x = 0; x < map.Map.GetLength(0); x++)
-                for (var y = 0; y < map.Map.GetLength(1); y++)
+                for (var x = 0; x < field.Map.GetLength(0); x++)
+                for (var y = 0; y < field.Map.GetLength(1); y++)
                 {
-                    finalRender.Batch.Meshes[x * map.Map.GetLength(1) + y].SetColor(this.ConvertMapToColor(map.Map[x, y]));
+                    finalRender.Batch.Meshes[x * field.Map.GetLength(1) + y].SetColor(this.ConvertMapToColor(field.Map[x, y]));
                 }
             }
         }
@@ -77,10 +77,10 @@
                 case 3: return Color.Green;
                 case 4: return Color.LightBlue;
                 case 5: return Color.Blue;
-                case 6: return Color.Purple;
+                case 6: return Color.Magenta;
             }
 
-            return Color.Black;
+            return Color.DimGray;
         }
     }
 }

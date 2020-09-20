@@ -40,34 +40,49 @@
                 return;
             }
 
-            var field = this.scene.FindEntity("Field");
-            var position = field.GetComponent<PositionComponent>();
-            var map = field.GetComponent<FieldComponent>().Map;
-
             var cursorPosition = (inputTouch.IsConnected && inputTouch.CurrentTouches.Any()) ? inputTouch.CurrentTouches.First().Position : inputMouse.MousePosition;
 
-            var location = (cursorPosition - position.Position) / BasicScene.BlockSize;
-            turn.X = (int)location.X;
-            turn.Y = (int)location.Y;
-
-            if (!IsInMap(map, turn))
+            var fieldEntity = this.scene.FindEntity("Field");
+            var field = fieldEntity.GetComponent<FieldComponent>();
+            if (this.TryMakeTurn(field.Map, fieldEntity, cursorPosition, turn))
             {
                 return;
             }
 
-            if (map[0, 0] == map[turn.X, turn.Y] || map[map.GetLength(0) - 1, map.GetLength(1) - 1] == map[turn.X, turn.Y])
-            {
-                field.GetComponent<CameraShakeComponent>().Shake();
-                return;
-            }
-
-            turn.TurnMade = true;
+            fieldEntity = this.scene.FindEntity("ColorSelector");
+            this.TryMakeTurn(field.Map, fieldEntity, cursorPosition, turn);
         }
 
-
-        private bool IsInMap(int[,] map, TurnMadeComponent next)
+        private bool TryMakeTurn(int[,] fieldMap, Entity fieldEntity, Vector2 cursorPosition, TurnMadeComponent turn)
         {
-            return next.X >= 0 && next.Y >= 0 && next.X < map.GetLength(0) && next.Y < map.GetLength(1);
+            var position = fieldEntity.GetComponent<PositionComponent>();
+            var field = fieldEntity.GetComponent<FieldComponent>();
+            var map = field.Map;
+
+            var location = (cursorPosition - position.Position) / (field.BlockSize + field.BlockInterval);
+            var x = (int)location.X;
+            var y = (int)location.Y;
+
+            if (!this.IsInMap(map, x, y))
+            {
+                return false;
+            }
+
+            if (fieldMap[0, 0] == map[x, y] || fieldMap[fieldMap.GetLength(0) - 1, fieldMap.GetLength(1) - 1] == map[x, y] || map[x, y] == -1)
+            {
+                var common = this.scene.FindEntity("Common");
+                common.GetComponent<CameraShakeComponent>().Shake();
+                return true;
+            }
+
+            turn.Color = map[x, y];
+            turn.TurnMade = true;
+            return true;
+        }
+
+        private bool IsInMap(int[,] map, int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < map.GetLength(0) && y < map.GetLength(1);
         }
 
     }

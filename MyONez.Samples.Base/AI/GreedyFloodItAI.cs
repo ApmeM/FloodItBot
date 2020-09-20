@@ -3,37 +3,29 @@
     using System;
     using System.Collections.Generic;
 
-    using BrainAI.AI.FSM;
-
     using Microsoft.Xna.Framework;
 
     using MyONez.Samples.Base.Components;
+    using MyONez.Samples.Base.Screens;
 
     /// <summary>
     /// Statistic 90%
     /// </summary>
-    public class GreedyFloodItAI : State<int[,]>
+    public class GreedyFloodItAI : BaseFloodItAI
     {
-        private readonly TurnMadeComponent turn;
-
-        public GreedyFloodItAI(TurnMadeComponent turn)
+        public GreedyFloodItAI(TurnMadeComponent turn, int startX, int startY)
+            : base(turn, startX, startY)
         {
-            this.turn = turn;
         }
 
         private int[,] copyArray;
 
-        public override void Update()
+        public override int Act()
         {
-            if (this.turn.TurnMade)
-            {
-                return;
-            }
-
             var maxValue = 0;
             var maxColor = 0;
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < BasicScene.ColorsCount; i++)
             {
                 if (this.Context[0, 0] == i
                     || this.Context[this.Context.GetLength(0) - 1, this.Context.GetLength(1) - 1] == i)
@@ -52,29 +44,17 @@
                 }
             }
 
-            for (var x = 0; x < this.Context.GetLength(0); x++)
-            for (var y = 0; y < this.Context.GetLength(1); y++)
-            {
-                if (maxColor != this.Context[x, y])
-                {
-                    continue;
-                }
-
-                this.turn.X = x;
-                this.turn.Y = y;
-                this.turn.TurnMade = true;
-                return;
-            }
+            return maxColor;
         }
 
         private int Calc(int[,] map)
         {
-            var color = map[0, 0];
+            var color = map[startX, startY];
 
             var result = 0;
 
             var frontier = new Queue<Point>();
-            frontier.Enqueue(new Point(0, 0));
+            frontier.Enqueue(new Point(startX, startY));
 
             var visited = new HashSet<Point>();
 
@@ -108,10 +88,10 @@
 
         private void FloodIt(int[,] map, int floodColor)
         {
-            var color = map[0, 0];
+            var color = map[startX, startY];
 
             var frontier = new Queue<Point>();
-            frontier.Enqueue(new Point(0, 0));
+            frontier.Enqueue(new Point(startX, startY));
 
             var visited = new HashSet<Point>();
 
