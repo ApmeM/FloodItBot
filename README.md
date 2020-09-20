@@ -19,8 +19,15 @@ If you want to build a bot that will rule the world:
 
 - Clone this repository
 - Add new file to MyONez.Samples.Base/AI 
-- Code... (for examples check any other AI in this folder)
+- Code... (See API section)
 - Create pull request
+
+API:
+Your class should inherit BaseFloodItAI class and implement Act method.
+Constructor of this class accept startX and startY parameters that can be either (0,0) or (width-1, height-1). Your opponent will receive opposite nubers.
+As input data this class have access to int[,] array as a field with numbers as a color under this.Context property.
+As output data code expect color number (from 0 to BasicScene.ColorsCount)
+If your bot output invalid value (select your or opponent color, color less then 0 or more or equal then BasicScene.ColorsCount) the output will be ignored and turn will not be switched.
 
 Please do not add external libraries to your bot as it might break web/android compatibility and I will not accept this pull request.
 

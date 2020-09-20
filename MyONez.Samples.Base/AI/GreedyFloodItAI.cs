@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    using BrainAI.AI.FSM;
-
     using Microsoft.Xna.Framework;
 
     using MyONez.Samples.Base.Components;
@@ -13,30 +11,17 @@
     /// <summary>
     /// Statistic 90%
     /// </summary>
-    public class GreedyFloodItAI : State<int[,]>
+    public class GreedyFloodItAI : BaseFloodItAI
     {
-        private readonly TurnMadeComponent turn;
-
-        private readonly int startX;
-
-        private readonly int startY;
-
         public GreedyFloodItAI(TurnMadeComponent turn, int startX, int startY)
+            : base(turn, startX, startY)
         {
-            this.turn = turn;
-            this.startX = startX;
-            this.startY = startY;
         }
 
         private int[,] copyArray;
 
-        public override void Update()
+        public override int Act()
         {
-            if (this.turn.TurnMade)
-            {
-                return;
-            }
-
             var maxValue = 0;
             var maxColor = 0;
 
@@ -59,8 +44,7 @@
                 }
             }
 
-            this.turn.Color = maxColor;
-            this.turn.TurnMade = true;
+            return maxColor;
         }
 
         private int Calc(int[,] map)

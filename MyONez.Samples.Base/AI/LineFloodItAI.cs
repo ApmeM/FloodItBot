@@ -1,34 +1,17 @@
 ﻿namespace MyONez.Samples.Base.AI
 {
-    using BrainAI.AI.FSM;
-
     using MyONez.Samples.Base.Components;
 
-    /// <summary>
-    /// Statistic 22%
-    /// </summary>
-    public class LineFloodItAI : State<int[,]>
+    public class LineFloodItAI : BaseFloodItAI
     {
-        private readonly TurnMadeComponent turn;
-
-        private readonly int startX;
-
-        private readonly int startY;
 
         public LineFloodItAI(TurnMadeComponent turn, int startX, int startY)
+            : base(turn, startX, startY)
         {
-            this.turn = turn;
-            this.startX = startX;
-            this.startY = startY;
         }
 
-        public override void Update()
+        public override int Act()
         {
-            if (this.turn.TurnMade)
-            {
-                return;
-            }
-
             if (this.startX == 0 && this.startY == 0)
             {
                 for (var x = 0; x < this.Context.GetLength(0); x++)
@@ -40,9 +23,7 @@
                         continue;
                     }
 
-                    this.turn.Color = this.Context[x, y];
-                    this.turn.TurnMade = true;
-                    return;
+                    return this.Context[x, y];
                 }
             }
             else
@@ -56,11 +37,11 @@
                         continue;
                     }
 
-                    this.turn.Color = this.Context[x, y];
-                    this.turn.TurnMade = true;
-                    return;
+                    return this.Context[x, y];
                 }
             }
+
+            return this.Context[0, 0];
         }
     }
 }
