@@ -6,6 +6,7 @@
     using BrainAI.ECS.Components;
     using BrainAI.ECS.EntitySystems;
 
+    using GeonBit.UI;
     using GeonBit.UI.ECS.Components;
     using GeonBit.UI.ECS.EntitySystems;
     using GeonBit.UI.Entities;
@@ -28,11 +29,9 @@
 
     public class BasicScene : Scene
     {
-        public const int BlockSize = 30;
+        public const int MapSize = 7;
 
-        public const int MapSize = 19;
-
-        public static int ColorsCount = 7;
+        public static int ColorsCount = 5;
 
         public BasicScene()
         {
@@ -64,26 +63,26 @@
             this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, TextUIUpdateSystem>();
             this.AddEntitySystemExecutionOrder<UIUpdateSystem, TextUIUpdateSystem>();
 
-            var moonTex = this.Content.Load<Texture2D>(ContentPaths.Basic.moon);
+            var moonTex = this.Content.Load<Texture2D>(ContentPaths.moon);
 
             var common = this.CreateEntity("Common");
             common.AddComponent(new CameraShakeComponent(this.Camera));
 
             var fieldEntity = this.CreateEntity("Field");
-            fieldEntity.AddComponent<PositionComponent>().Position = new Vector2(285, 15);
+            fieldEntity.AddComponent<PositionComponent>().Position = new Vector2(285, 5);
             fieldEntity.AddComponent<TurnMadeComponent>();
             var field = fieldEntity.AddComponent<FieldComponent>();
-            field.BlockSize = BlockSize;
+            field.BlockSize = 600 / MapSize;
             field.Map = new int[MapSize, MapSize];
             field.Texture = moonTex;
 
             var colorSelector = this.CreateEntity("ColorSelector");
             var colorSelectorPosition = colorSelector.AddComponent<PositionComponent>();
-            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (BlockSize * 2 + 10) * ColorsCount / 2f);
+            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
             var colorSelectionField = colorSelector.AddComponent<FieldComponent>();
             colorSelectionField.Map = new int[1, ColorsCount];
             colorSelectionField.Texture = moonTex;
-            colorSelectionField.BlockSize = BlockSize * 2;
+            colorSelectionField.BlockSize = 400 / ColorsCount - 10;
             colorSelectionField.BlockInterval = 10;
 
             var player1 = this.CreateEntity("Player1");
@@ -106,33 +105,14 @@
             var counter = counterEntity.AddComponent<CounterComponent>();
             counterEntity.AddComponent<TextComponent>().Text = "Test text;";
             counterEntity.AddComponent<ColorComponent>().Color = Color.Gray;
+            counterEntity.AddComponent<RenderOrderComponent>().Order = -1;
 
-            var help = this.CreateEntity("Help");
-            var ui = help.AddComponent<UIComponent>();
+            var uiEntity = this.CreateEntity("UI");
+            var ui = uiEntity.AddComponent<UIComponent>();
             ui.UserInterface.ShowCursor = false;
             var panel = ui.UserInterface.AddEntity(new Panel(new Vector2(250, 250), PanelSkin.None, Anchor.CenterLeft));
-            panel.AddChild(
-                new Button("Help")
-                {
-                    OnClick = (b) =>
-                    {
-                        player1.Enabled = false;
-                        player2.Enabled = false;
-                        MessageBox.ShowMsgBox(
-                            "Help",
-                            "Turn base flood it game.\n AIBot start in top left corner. \nYou start in bottom right corner. \nEach turn you select a color to flood your corner with by clicking on a colored cell on a field. \nIf any player reach size more then half of a field - game is over.",
-                            onDone: () =>
-                            {
-                                player1.Enabled = true;
-                                player2.Enabled = true;
-                            });
-                    }
-                });
-            panel.AddChild(
-                new Button("Restart")
-                {
-                    OnClick = (b) => { this.Restart(field, counter); }
-                });
+
+            var helpMessageBox = BuildHelpMessageBox(player1, player2);
 
             var player1Label = new Label("Player 1");
             var player1DropDown = new DropDown();
@@ -157,33 +137,54 @@
             player2DropDown.AddItem("Med.");
             player2DropDown.AddItem("Hard");
             player2DropDown.SelectedValue = "Hard";
-            var messageBox = MessageBox.ShowMsgBox(
+            var settingsMessageBox = MessageBox.BuildMessageBox(
                 "Settings",
                 "",
                 "Set",
-                extraEntities: new Entity[] { player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown },
-                onDone: () =>
+                extraEntities: new Entity[]
                 {
-                    player1.Enabled = true;
-                    player2.Enabled = true;
-                    counter.Player1Name = player1DropDown.SelectedValue;
-                    counter.Player2Name = player2DropDown.SelectedValue;
-                    ColorsCount = int.Parse(colorsCountDropDown.SelectedValue);
-                    colorSelectionField.Map = new int[1, ColorsCount];
-                    colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (BlockSize * 2 + 10) * ColorsCount / 2f);
-                    this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
-                    this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
-                    this.Restart(field, counter);
+                    player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel,
+                    colorsCountDropDown
                 });
-            messageBox.Close();
+            settingsMessageBox.OnDone = (b) =>
+            {
+                player1.Enabled = true;
+                player2.Enabled = true;
+                counter.Player1Name = player1DropDown.SelectedValue;
+                counter.Player2Name = player2DropDown.SelectedValue;
+                ColorsCount = int.Parse(colorsCountDropDown.SelectedValue);
+                colorSelectionField.Map = new int[1, ColorsCount];
+                colorSelectorPosition.Position = new Vector2(
+                    1000,
+                    Core.Instance.Screen.Center.Y - (600f / MapSize * 2 + 10) * ColorsCount / 2f);
+                this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
+                this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
+                this.Restart(field, counter);
+            };
+
+            panel.AddChild(
+                new Button("Help")
+                {
+                    OnClick = (b) =>
+                    {
+                        helpMessageBox.Show();
+                    }
+                });
+
+            panel.AddChild(
+                new Button("Restart")
+                {
+                    OnClick = (b) => { this.Restart(field, counter); }
+                });
+
             panel.AddChild(
                 new Button("Settings")
                 {
                     OnClick = (b) =>
                     {
+                        settingsMessageBox.Show();
                         player1.Enabled = false;
                         player2.Enabled = false;
-                        ui.UserInterface.AddEntity(messageBox.Panel);
                     }
                 });
 
@@ -192,6 +193,59 @@
             this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
             this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
             this.Restart(field, counter);
+
+            UserInterface.Active = ui.UserInterface;
+            helpMessageBox.Show();
+        }
+
+        private MessageBox.MessageBoxHandle BuildHelpMessageBox(LocomotorECS.Entity player1, LocomotorECS.Entity player2)
+        {
+            var images = new[]
+            {
+                this.Content.Load<Texture2D>(ContentPaths.help1),
+                this.Content.Load<Texture2D>(ContentPaths.help2),
+                this.Content.Load<Texture2D>(ContentPaths.help3)
+            };
+
+            var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(900, 500));
+            var button = new Button("next ->", anchor: Anchor.BottomCenter, size: new Vector2(300, 50));
+
+            var messageBox = MessageBox.BuildMessageBox(
+                "",
+                "",
+                new MessageBox.MsgBoxOption[0],
+                new Entity[] { image, button },
+                new Vector2(1000, 600));
+
+            var currentImage = 0;
+            button.OnClick = image.OnClick = (b) =>
+            {
+                if (currentImage + 1 == images.Length)
+                {
+                    messageBox.Close();
+                    return;
+                }
+
+                currentImage++;
+                image.Texture = images[currentImage];
+                
+            };
+
+            messageBox.OnDone = (b) =>
+            {
+                player1.Enabled = true;
+                player2.Enabled = true;
+            };
+
+            messageBox.OnShow = (b) =>
+            {
+                currentImage = 0;
+                image.Texture = images[currentImage];
+                player1.Enabled = false;
+                player2.Enabled = false;
+            };
+
+            return messageBox;
         }
 
         private void InitPlayer(
