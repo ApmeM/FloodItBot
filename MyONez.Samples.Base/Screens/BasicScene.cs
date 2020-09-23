@@ -2,6 +2,8 @@
 {
     #region Using Directives
 
+    using System.Collections;
+
     using BrainAI.AI.FSM;
     using BrainAI.ECS.Components;
     using BrainAI.ECS.EntitySystems;
@@ -13,6 +15,7 @@
     using GeonBit.UI.Utils;
 
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Content;
     using Microsoft.Xna.Framework.Graphics;
 
     using MyONez.ECS;
@@ -207,7 +210,7 @@
                 this.Content.Load<Texture2D>(ContentPaths.help3)
             };
 
-            var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(900, 500));
+            var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(656, 500));
             var button = new Button("next ->", anchor: Anchor.BottomCenter, size: new Vector2(300, 50));
 
             var messageBox = MessageBox.BuildMessageBox(
@@ -215,7 +218,7 @@
                 "",
                 new MessageBox.MsgBoxOption[0],
                 new Entity[] { image, button },
-                new Vector2(1000, 600));
+                new Vector2(710, 600));
 
             var currentImage = 0;
             button.OnClick = image.OnClick = (b) =>
@@ -289,6 +292,18 @@
             counter.GameOver = false;
             counter.Player1Size = 1;
             counter.Player2Size = 1;
+        }
+
+        public static IEnumerator GetEnumerator(ContentManager content)
+        {
+            content.Load<Texture2D>(ContentPaths.moon);
+            yield return 0;
+            content.Load<Texture2D>(ContentPaths.help1);
+            yield return 0;
+            content.Load<Texture2D>(ContentPaths.help2);
+            yield return 0;
+            content.Load<Texture2D>(ContentPaths.help3);
+            yield return 0;
         }
     }
 }
