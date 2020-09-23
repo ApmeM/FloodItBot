@@ -81,8 +81,8 @@
 
             var colorSelector = this.CreateEntity("ColorSelector");
             var colorSelectorPosition = colorSelector.AddComponent<PositionComponent>();
-            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
             var colorSelectionField = colorSelector.AddComponent<FieldComponent>();
+            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
             colorSelectionField.Map = new int[1, ColorsCount];
             colorSelectionField.Texture = moonTex;
             colorSelectionField.BlockSize = 400 / ColorsCount - 10;
@@ -156,10 +156,11 @@
                 counter.Player1Name = player1DropDown.SelectedValue;
                 counter.Player2Name = player2DropDown.SelectedValue;
                 ColorsCount = int.Parse(colorsCountDropDown.SelectedValue);
+                colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
                 colorSelectionField.Map = new int[1, ColorsCount];
-                colorSelectorPosition.Position = new Vector2(
-                    1000,
-                    Core.Instance.Screen.Center.Y - (600f / MapSize * 2 + 10) * ColorsCount / 2f);
+                colorSelectionField.Texture = moonTex;
+                colorSelectionField.BlockSize = 400 / ColorsCount - 10;
+                colorSelectionField.BlockInterval = 10;
                 this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                 this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
