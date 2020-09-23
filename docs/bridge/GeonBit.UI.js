@@ -9100,6 +9100,401 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
         }
     });
 
+    Bridge.define("GeonBit.UI.Utils.GeonBitUIResources", {
+        statics: {
+            methods: {
+                GetEnumerator: function (content, theme) {
+                    var $step = 0,
+                        $jumpFromFinally,
+                        $returnValue,
+                        root,
+                        $t,
+                        cursor,
+                        cursorName,
+                        $t1,
+                        skin,
+                        skinName,
+                        $t2,
+                        skin1,
+                        skinName1,
+                        $t3,
+                        style,
+                        $t4,
+                        skin2,
+                        skinName2,
+                        $async_e;
+
+                    var $enumerator = new Bridge.GeneratorEnumerator(Bridge.fn.bind(this, function () {
+                        try {
+                            for (;;) {
+                                switch ($step) {
+                                    case 0: {
+                                        root = "GeonBit.UI/themes/" + (theme || "") + "/";
+
+                                            content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/horizontal_line");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 1;
+                                            return true;
+                                    }
+                                    case 1: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/white_texture");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 2;
+                                            return true;
+                                    }
+                                    case 2: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/icons/background");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 3;
+                                            return true;
+                                    }
+                                    case 3: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/scrollbar");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 4;
+                                            return true;
+                                    }
+                                    case 4: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/scrollbar_mark");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 5;
+                                            return true;
+                                    }
+                                    case 5: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/arrow_down");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 6;
+                                            return true;
+                                    }
+                                    case 6: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/arrow_up");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 7;
+                                            return true;
+                                    }
+                                    case 7: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/progressbar");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 8;
+                                            return true;
+                                    }
+                                    case 8: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/progressbar_fill");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 9;
+                                            return true;
+                                    }
+                                    case 9: {
+                                        $t = Bridge.getEnumerator(System.Enum.getValues(GeonBit.UI.CursorType));
+                                            try {
+                                                while ($t.moveNext()) {
+                                                    cursor = Bridge.cast($t.Current, GeonBit.UI.CursorType);
+                                                    cursorName = GeonBit.UI.BridgeExtension.ToLowerInvariant(System.Enum.getName(GeonBit.UI.CursorType, Bridge.box(cursor, GeonBit.UI.CursorType, System.Enum.toStringFn(GeonBit.UI.CursorType))));
+                                                    content.Load(GeonBit.UI.DataTypes.CursorTextureData, (root || "") + "textures/cursor_" + (cursorName || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t, System.IDisposable)) {
+                                                    $t.System$IDisposable$Dispose();
+                                                }
+                                            }
+
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 10;
+                                            return true;
+                                    }
+                                    case 10: {
+                                        $t1 = Bridge.getEnumerator(System.Enum.getValues(GeonBit.UI.Entities.PanelSkin));
+                                            try {
+                                                while ($t1.moveNext()) {
+                                                    skin = Bridge.cast($t1.Current, GeonBit.UI.Entities.PanelSkin);
+                                                    if (skin === GeonBit.UI.Entities.PanelSkin.None) {
+                                                        continue;
+                                                    }
+                                                    skinName = GeonBit.UI.BridgeExtension.ToLowerInvariant(System.Enum.toString(GeonBit.UI.Entities.PanelSkin, skin));
+                                                    content.Load(GeonBit.UI.DataTypes.TextureData, (root || "") + "textures/panel_" + (skinName || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t1, System.IDisposable)) {
+                                                    $t1.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 11;
+                                            return true;
+                                    }
+                                    case 11: {
+                                        content.Load(GeonBit.UI.DataTypes.TextureData, (root || "") + "textures/scrollbar_md");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 12;
+                                            return true;
+                                    }
+                                    case 12: {
+                                        $t2 = Bridge.getEnumerator(System.Enum.getValues(GeonBit.UI.Entities.SliderSkin));
+                                            try {
+                                                while ($t2.moveNext()) {
+                                                    skin1 = Bridge.cast($t2.Current, GeonBit.UI.Entities.SliderSkin);
+                                                    skinName1 = GeonBit.UI.BridgeExtension.ToLowerInvariant(System.Enum.toString(GeonBit.UI.Entities.SliderSkin, skin1));
+                                                    content.Load(GeonBit.UI.DataTypes.TextureData, (root || "") + "textures/slider_" + (skinName1 || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t2, System.IDisposable)) {
+                                                    $t2.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 13;
+                                            return true;
+                                    }
+                                    case 13: {
+                                        $t3 = Bridge.getEnumerator(System.Enum.getValues(GeonBit.UI.Entities.FontStyle));
+                                            try {
+                                                while ($t3.moveNext()) {
+                                                    style = Bridge.cast($t3.Current, GeonBit.UI.Entities.FontStyle);
+                                                    content.Load(Microsoft.Xna.Framework.Graphics.SpriteFont, (root || "") + "fonts/" + (System.Enum.toString(GeonBit.UI.Entities.FontStyle, style) || ""));
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t3, System.IDisposable)) {
+                                                    $t3.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 14;
+                                            return true;
+                                    }
+                                    case 14: {
+                                        $t4 = Bridge.getEnumerator(System.Enum.getValues(GeonBit.UI.Entities.ButtonSkin));
+                                            try {
+                                                while ($t4.moveNext()) {
+                                                    skin2 = Bridge.cast($t4.Current, GeonBit.UI.Entities.ButtonSkin);
+                                                    skinName2 = GeonBit.UI.BridgeExtension.ToLowerInvariant(System.Enum.toString(GeonBit.UI.Entities.ButtonSkin, skin2));
+                                                    content.Load(GeonBit.UI.DataTypes.TextureData, (root || "") + "textures/button_" + (skinName2 || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t4, System.IDisposable)) {
+                                                    $t4.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 15;
+                                            return true;
+                                    }
+                                    case 15: {
+                                        content.Load(GeonBit.UI.DataTypes.TextureData, (root || "") + "textures/progressbar_md");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 16;
+                                            return true;
+                                    }
+                                    case 16: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Effect, (root || "") + "effects/disabled");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 17;
+                                            return true;
+                                    }
+                                    case 17: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Effect, (root || "") + "effects/silhouette");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 18;
+                                            return true;
+                                    }
+                                    case 18: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Entity, "DefaultStyle"), "Entity", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 19;
+                                            return true;
+                                    }
+                                    case 19: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Paragraph, "DefaultStyle"), "Paragraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 20;
+                                            return true;
+                                    }
+                                    case 20: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Button, "DefaultStyle"), "Button", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 21;
+                                            return true;
+                                    }
+                                    case 21: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Button, "DefaultParagraphStyle"), "ButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 22;
+                                            return true;
+                                    }
+                                    case 22: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.CheckBox, "DefaultStyle"), "CheckBox", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 23;
+                                            return true;
+                                    }
+                                    case 23: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.CheckBox, "DefaultParagraphStyle"), "CheckBoxParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 24;
+                                            return true;
+                                    }
+                                    case 24: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.ColoredRectangle, "DefaultStyle"), "ColoredRectangle", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 25;
+                                            return true;
+                                    }
+                                    case 25: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.DropDown, "DefaultStyle"), "DropDown", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 26;
+                                            return true;
+                                    }
+                                    case 26: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.DropDown, "DefaultParagraphStyle"), "DropDownParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 27;
+                                            return true;
+                                    }
+                                    case 27: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.DropDown, "DefaultSelectedParagraphStyle"), "DropDownSelectedParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 28;
+                                            return true;
+                                    }
+                                    case 28: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Header, "DefaultStyle"), "Header", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 29;
+                                            return true;
+                                    }
+                                    case 29: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.HorizontalLine, "DefaultStyle"), "HorizontalLine", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 30;
+                                            return true;
+                                    }
+                                    case 30: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Icon, "DefaultStyle"), "Icon", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 31;
+                                            return true;
+                                    }
+                                    case 31: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Image, "DefaultStyle"), "Image", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 32;
+                                            return true;
+                                    }
+                                    case 32: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Label, "DefaultStyle"), "Label", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 33;
+                                            return true;
+                                    }
+                                    case 33: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Panel, "DefaultStyle"), "Panel", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 34;
+                                            return true;
+                                    }
+                                    case 34: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.ProgressBar, "DefaultStyle"), "ProgressBar", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 35;
+                                            return true;
+                                    }
+                                    case 35: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.ProgressBar, "DefaultFillStyle"), "ProgressBarFill", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 36;
+                                            return true;
+                                    }
+                                    case 36: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.RadioButton, "DefaultStyle"), "RadioButton", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 37;
+                                            return true;
+                                    }
+                                    case 37: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.RadioButton, "DefaultParagraphStyle"), "RadioButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 38;
+                                            return true;
+                                    }
+                                    case 38: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.SelectList, "DefaultStyle"), "SelectList", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 39;
+                                            return true;
+                                    }
+                                    case 39: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.SelectList, "DefaultParagraphStyle"), "SelectListParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 40;
+                                            return true;
+                                    }
+                                    case 40: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.Slider, "DefaultStyle"), "Slider", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 41;
+                                            return true;
+                                    }
+                                    case 41: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.TextInput, "DefaultStyle"), "TextInput", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 42;
+                                            return true;
+                                    }
+                                    case 42: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.TextInput, "DefaultParagraphStyle"), "TextInputParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 43;
+                                            return true;
+                                    }
+                                    case 43: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.TextInput, "DefaultPlaceholderStyle"), "TextInputPlaceholder", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 44;
+                                            return true;
+                                    }
+                                    case 44: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.VerticalScrollbar, "DefaultStyle"), "VerticalScrollbar", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 45;
+                                            return true;
+                                    }
+                                    case 45: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.PanelTabs, "DefaultButtonStyle"), "PanelTabsButton", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 46;
+                                            return true;
+                                    }
+                                    case 46: {
+                                        GeonBit.UI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(GeonBit.UI.Entities.PanelTabs, "DefaultButtonParagraphStyle"), "PanelTabsButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 47;
+                                            return true;
+                                    }
+                                    case 47: {
+
+                                    }
+                                    default: {
+                                        return false;
+                                    }
+                                }
+                            }
+                        } catch($async_e1) {
+                            $async_e = System.Exception.create($async_e1);
+                            throw $async_e;
+                        }
+                    }));
+                    return $enumerator;
+                },
+                LoadDefaultStyles: function (sheet, entityName, themeRoot, content) {
+                    var stylesheetBase = (themeRoot || "") + "styles/" + (entityName || "");
+                    content.Load(GeonBit.UI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-Default");
+                    content.Load(GeonBit.UI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseHover");
+                    content.Load(GeonBit.UI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseDown");
+                }
+            }
+        }
+    });
+
     /**
      * Helper class to generate message boxes and prompts.
      *

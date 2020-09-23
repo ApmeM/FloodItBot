@@ -1846,6 +1846,117 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
         }
     });
 
+    Bridge.define("MyONez.AdditionalContent.Scenes.LoadingData", {
+        props: {
+            Count: 0,
+            Enumerator: null
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.Scenes.LoadingScene$1", function (T) { return {
+        inherits: [MyONez.ECS.Scene],
+        ctors: {
+            ctor: function (loadings, width, height) {
+                this.$initialize();
+                MyONez.ECS.Scene.ctor.call(this);
+                this.SetDesignResolution(width, height, MyONez.Graphics.ResolutionPolicy.SceneResolutionPolicy.None);
+                MyONez.Core.Instance.Screen.SetSize(width, height);
+                this.AddRenderer(MyONez.Graphics.Renderers.DefaultRenderer, new MyONez.Graphics.Renderers.DefaultRenderer());
+
+
+                var progress = this.CreateEntity("progress");
+                var progressComponent = progress.AddComponent(MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent(T));
+                progressComponent.Total = System.Linq.Enumerable.from(loadings).sum($asm.$.MyONez.AdditionalContent.Scenes.LoadingScene$1.f1);
+
+                this.AddEntitySystem(new (MyONez.AdditionalContent.Scenes.LoadingScene$1.LoadElementUpdateSystem(T))(loadings, progressComponent));
+                this.AddEntitySystem(new (MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressMeshGeneratorSystem(T))(this));
+            }
+        }
+    }; });
+
+    Bridge.ns("MyONez.AdditionalContent.Scenes.LoadingScene$1", $asm.$);
+
+    Bridge.apply($asm.$.MyONez.AdditionalContent.Scenes.LoadingScene$1, {
+        f1: function (a) {
+            return a.Count;
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.Scenes.LoadingScene$1.LoadElementUpdateSystem", function (T) { return {
+        inherits: [LocomotorECS.EntitySystem],
+        $kind: "nested class",
+        fields: {
+            loadings: null,
+            progress: null,
+            currentLoading: 0
+        },
+        ctors: {
+            init: function () {
+                this.currentLoading = 0;
+            },
+            ctor: function (loadings, progress) {
+                this.$initialize();
+                LocomotorECS.EntitySystem.ctor.call(this);
+                this.loadings = loadings;
+                this.progress = progress;
+            }
+        },
+        methods: {
+            DoAction: function (gameTime) {
+                LocomotorECS.EntitySystem.prototype.DoAction.call(this, gameTime);
+                if (this.loadings.Count === this.currentLoading) {
+                    MyONez.Core.Instance.SwitchScene(Bridge.createInstance(T));
+                    return;
+                }
+
+                var enumerator = this.loadings.getItem(this.currentLoading).Enumerator;
+                if (!enumerator.System$Collections$IEnumerator$moveNext()) {
+                    this.currentLoading = (this.currentLoading + 1) | 0;
+                    return;
+                }
+
+                this.progress.Current = (this.progress.Current + 1) | 0;
+            }
+        }
+    }; });
+
+    Bridge.define("MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent", function (T) { return {
+        inherits: [LocomotorECS.Component],
+        $kind: "nested class",
+        fields: {
+            Current: 0,
+            Total: 0
+        }
+    }; });
+
+    Bridge.define("MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressMeshGeneratorSystem", function (T) { return {
+        inherits: [LocomotorECS.EntityProcessingSystem],
+        $kind: "nested class",
+        fields: {
+            scene: null
+        },
+        ctors: {
+            ctor: function (scene) {
+                this.$initialize();
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent(T)]));
+                this.scene = scene;
+            }
+        },
+        methods: {
+            DoAction$1: function (entity, gameTime) {
+                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
+                var progress = entity.GetComponent(MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent(T));
+                var finalRender = entity.GetOrCreateComponent(MyONez.ECS.Components.FinalRenderComponent);
+
+                finalRender.Batch.Clear();
+
+                finalRender.Batch.Draw(MyONez.Graphics.Graphic.PixelTexture, new MyONez.Maths.RectangleF.$ctor2(99, ((MyONez.Core.Instance.Screen.Height - 101) | 0), ((MyONez.Core.Instance.Screen.Width - 198) | 0), 52), MyONez.Maths.RectangleF.op_Implicit$1(MyONez.Graphics.Graphic.PixelTexture.Bounds.$clone()), Microsoft.Xna.Framework.Color.Black.$clone());
+
+                finalRender.Batch.Draw(MyONez.Graphics.Graphic.PixelTexture, new MyONez.Maths.RectangleF.$ctor2(100, ((MyONez.Core.Instance.Screen.Height - 100) | 0), progress.Current * (MyONez.Core.Instance.Screen.Width - 200.0) / progress.Total, 50), MyONez.Maths.RectangleF.op_Implicit$1(MyONez.Graphics.Graphic.PixelTexture.Bounds.$clone()), Microsoft.Xna.Framework.Color.White.$clone());
+            }
+        }
+    }; });
+
     Bridge.define("MyONez.AdditionalContent.SceneTransitions.CinematicLetterboxTransition", {
         inherits: [MyONez.Graphics.Transitions.SceneTransition],
         fields: {

@@ -124,8 +124,19 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         methods: {
             Initialize: function () {
                 MyONez.Core.prototype.Initialize.call(this);
-                MyONez.Core.Instance.SwitchScene(new MyONez.Samples.Base.Screens.BasicScene());
+                MyONez.Core.Instance.SwitchScene(new (MyONez.AdditionalContent.Scenes.LoadingScene$1(MyONez.Samples.Base.Screens.BasicScene))(Bridge.fn.bind(this, $asm.$.MyONez.Samples.Base.Game1.f1)(new (System.Collections.Generic.List$1(MyONez.AdditionalContent.Scenes.LoadingData)).ctor()), 1200, 600));
             }
+        }
+    });
+
+    Bridge.ns("MyONez.Samples.Base.Game1", $asm.$);
+
+    Bridge.apply($asm.$.MyONez.Samples.Base.Game1, {
+        f1: function (_o1) {
+            var $t;
+            _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 4, $t.Enumerator = MyONez.Samples.Base.Screens.BasicScene.GetEnumerator(this.Content), $t));
+            _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 47, $t.Enumerator = GeonBit.UI.Utils.GeonBitUIResources.GetEnumerator(this.Content, "hd"), $t));
+            return _o1;
         }
     });
 
@@ -140,6 +151,57 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 init: function () {
                     this.MapSize = 7;
                     this.ColorsCount = 5;
+                }
+            },
+            methods: {
+                GetEnumerator: function (content) {
+                    var $step = 0,
+                        $jumpFromFinally,
+                        $returnValue,
+                        $async_e;
+
+                    var $enumerator = new Bridge.GeneratorEnumerator(Bridge.fn.bind(this, function () {
+                        try {
+                            for (;;) {
+                                switch ($step) {
+                                    case 0: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 1;
+                                            return true;
+                                    }
+                                    case 1: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help1);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 2;
+                                            return true;
+                                    }
+                                    case 2: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help2);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 3;
+                                            return true;
+                                    }
+                                    case 3: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help3);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 4;
+                                            return true;
+                                    }
+                                    case 4: {
+
+                                    }
+                                    default: {
+                                        return false;
+                                    }
+                                }
+                            }
+                        } catch($async_e1) {
+                            $async_e = System.Exception.create($async_e1);
+                            throw $async_e;
+                        }
+                    }));
+                    return $enumerator;
                 }
             }
         },
@@ -288,10 +350,10 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
             BuildHelpMessageBox: function (player1, player2) {
                 var images = System.Array.init([this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help1), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help2), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help3)], Microsoft.Xna.Framework.Graphics.Texture2D);
 
-                var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(900, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
+                var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(656, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
                 var button = new GeonBit.UI.Entities.Button.$ctor1("next ->", 0, GeonBit.UI.Entities.Anchor.BottomCenter, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 50), void 0);
 
-                var messageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox("", "", System.Array.init(0, null, GeonBit.UI.Utils.MessageBox.MsgBoxOption), System.Array.init([image, button], GeonBit.UI.Entities.Entity), new Microsoft.Xna.Framework.Vector2.$ctor2(1000, 600));
+                var messageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox("", "", System.Array.init(0, null, GeonBit.UI.Utils.MessageBox.MsgBoxOption), System.Array.init([image, button], GeonBit.UI.Entities.Entity), new Microsoft.Xna.Framework.Vector2.$ctor2(710, 600));
 
                 var currentImage = 0;
                 button.OnClick = (image.OnClick = function (b) {

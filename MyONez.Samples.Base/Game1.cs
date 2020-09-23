@@ -2,6 +2,15 @@ namespace MyONez.Samples.Base
 {
     #region Using Directives
 
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Threading;
+
+    using GeonBit.UI.Utils;
+
+    using Microsoft.Xna.Framework.Graphics;
+
+    using MyONez.AdditionalContent.Scenes;
     using MyONez.Samples.Base.Screens;
 
     #endregion
@@ -20,7 +29,19 @@ namespace MyONez.Samples.Base
         protected override void Initialize()
         {
             base.Initialize();
-            Instance.SwitchScene(new BasicScene());
+            Instance.SwitchScene(new LoadingScene<BasicScene>(new List<LoadingData>
+            {
+                new LoadingData
+                {
+                    Count = 4,
+                    Enumerator = BasicScene.GetEnumerator(this.Content)
+                },
+                new LoadingData
+                {
+                    Count = 47,
+                    Enumerator = GeonBitUIResources.GetEnumerator(this.Content, "hd")
+                },
+            }, 1200, 600));
         }
     }
 }
