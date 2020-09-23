@@ -9190,38 +9190,35 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
                  * @param   {Array.<GeonBit.UI.Utils.MessageBox.MsgBoxOption>}    options          Msgbox response options.
                  * @param   {Array.<GeonBit.UI.Entities.Entity>}                  extraEntities    Optional array of entities to add to msg box under the text and above the buttons.
                  * @param   {?Microsoft.Xna.Framework.Vector2}                    size             Alternative size to use.
-                 * @param   {System.Action}                                       onDone           Optional callback to call when this msgbox closes.
                  * @param   {GeonBit.UI.Entities.Entity}                          parent           Parent to add message box to (if not defined will use root)
                  * @return  {GeonBit.UI.Utils.MessageBox.MessageBoxHandle}                         Message box handle.
                  */
-                ShowMsgBox: function (header, text, options, extraEntities, size, onDone, parent) {
+                BuildMessageBox: function (header, text, options, extraEntities, size, parent) {
                     var $t, $t1, $t2;
                     if (extraEntities === void 0) { extraEntities = null; }
                     if (size === void 0) { size = null; }
-                    if (onDone === void 0) { onDone = null; }
                     if (parent === void 0) { parent = null; }
                     // object to return
                     var ret = new GeonBit.UI.Utils.MessageBox.MessageBoxHandle();
-
                     // create panel for messagebox
-                    size = ($t = size, $t != null ? $t : new Microsoft.Xna.Framework.Vector2.$ctor2(500, -1));
+                    size = ($t = size, $t != null ? $t : GeonBit.UI.Utils.MessageBox.DefaultMsgBoxSize);
                     var panel = new GeonBit.UI.Entities.Panel.$ctor1(System.Nullable.getValue(size).$clone());
                     ret.Panel = panel;
-                    panel.AddChild(new GeonBit.UI.Entities.Header.$ctor1(header));
-                    panel.AddChild(new GeonBit.UI.Entities.HorizontalLine.ctor());
-                    panel.AddChild(new GeonBit.UI.Entities.RichParagraph.$ctor2(text));
+                    if (!System.String.isNullOrWhiteSpace(header)) {
+                        panel.AddChild(new GeonBit.UI.Entities.Header.$ctor1(header));
+                        panel.AddChild(new GeonBit.UI.Entities.HorizontalLine.ctor());
+                    }
 
-                    // add to opened boxes counter
-                    GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount = (GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount + 1) | 0;
+                    if (!System.String.isNullOrWhiteSpace(text)) {
+                        panel.AddChild(new GeonBit.UI.Entities.RichParagraph.$ctor2(text));
+                    }
 
                     // add rectangle to hide and lock background
-                    var fader = null;
                     if (GeonBit.UI.Utils.MessageBox.BackgroundFaderColor.A !== 0) {
-                        fader = new GeonBit.UI.Entities.ColoredRectangle.$ctor4(Microsoft.Xna.Framework.Vector2.Zero.$clone(), GeonBit.UI.Entities.Anchor.Center);
+                        var fader = new GeonBit.UI.Entities.ColoredRectangle.$ctor4(Microsoft.Xna.Framework.Vector2.Zero.$clone(), GeonBit.UI.Entities.Anchor.Center);
                         fader.FillColor = new Microsoft.Xna.Framework.Color.$ctor7(0, 0, 0, 100);
                         fader.OutlineWidth = 0;
                         fader.ClickThrough = false;
-                        GeonBit.UI.UserInterface.Active.AddEntity(fader);
                         ret.BackgroundFader = fader;
                     }
 
@@ -9260,17 +9257,7 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
                                 return function (ent) {
                                     // if need to close message box after clicking this button, close it:
                                     if (Bridge.staticEquals(option.v.Callback, null) || option.v.Callback()) {
-                                        // remove fader and msg box panel
-                                        if (fader != null) {
-                                            fader.RemoveFromParent();
-                                        }
-                                        panel.RemoveFromParent();
-
-                                        // decrease msg boxes count
-                                        GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount = (GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount - 1) | 0;
-
-                                        // call on-done callback
-                                        !Bridge.staticEquals(onDone, null) ? onDone() : null;
+                                        ret.Close();
                                     }
                                 };
                             })(this, option));
@@ -9284,12 +9271,8 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
                         }
                     }
 
-                    // add panel to given parent
-                    if (parent != null) {
-                        parent.AddChild(panel);
-                    } else {
-                        GeonBit.UI.UserInterface.Active.AddEntity(panel);
-                    }
+                    ret.Parent = parent;
+
                     return ret;
                 },
                 /**
@@ -9304,16 +9287,14 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
                  * @param   {string}                                          closeButtonTxt    Text for the closing button (if not provided will use default).
                  * @param   {?Microsoft.Xna.Framework.Vector2}                size              Message box size (if not provided will use default).
                  * @param   {Array.<GeonBit.UI.Entities.Entity>}              extraEntities     Optional array of entities to add to msg box under the text and above the buttons.
-                 * @param   {System.Action}                                   onDone            Optional callback to call when this msgbox closes.
                  * @return  {GeonBit.UI.Utils.MessageBox.MessageBoxHandle}                      Message box panel.
                  */
-                ShowMsgBox$1: function (header, text, closeButtonTxt, size, extraEntities, onDone) {
+                BuildMessageBox$1: function (header, text, closeButtonTxt, size, extraEntities) {
                     var $t, $t1;
                     if (closeButtonTxt === void 0) { closeButtonTxt = null; }
                     if (size === void 0) { size = null; }
                     if (extraEntities === void 0) { extraEntities = null; }
-                    if (onDone === void 0) { onDone = null; }
-                    return GeonBit.UI.Utils.MessageBox.ShowMsgBox(header, text, System.Array.init([new GeonBit.UI.Utils.MessageBox.MsgBoxOption(($t = closeButtonTxt, $t != null ? $t : GeonBit.UI.Utils.MessageBox.DefaultOkButtonText), null)], GeonBit.UI.Utils.MessageBox.MsgBoxOption), extraEntities, ($t1 = size, $t1 != null ? $t1 : GeonBit.UI.Utils.MessageBox.DefaultMsgBoxSize), onDone, void 0);
+                    return GeonBit.UI.Utils.MessageBox.BuildMessageBox(header, text, System.Array.init([new GeonBit.UI.Utils.MessageBox.MsgBoxOption(($t = closeButtonTxt, $t != null ? $t : GeonBit.UI.Utils.MessageBox.DefaultOkButtonText), null)], GeonBit.UI.Utils.MessageBox.MsgBoxOption), extraEntities, ($t1 = size, $t1 != null ? $t1 : GeonBit.UI.Utils.MessageBox.DefaultMsgBoxSize), void 0);
                 }
             }
         }
@@ -9347,6 +9328,11 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
              */
             BackgroundFader: null
         },
+        props: {
+            Parent: null,
+            OnShow: null,
+            OnDone: null
+        },
         methods: {
             /**
              * Hide / close the message box.
@@ -9358,14 +9344,45 @@ Bridge.assembly("GeonBit.UI", function ($asm, globals) {
              * @return  {void}
              */
             Close: function () {
-                if (this.Panel.Parent != null) {
-                    this.Panel.RemoveFromParent();
-                    if (this.BackgroundFader != null) {
-                        this.BackgroundFader.RemoveFromParent();
-                    }
-                    GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount = (GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount - 1) | 0;
+                var $t;
+                if (this.Panel.Parent == null) {
+                    return;
                 }
+
+                this.Panel.RemoveFromParent();
+                this.BackgroundFader != null ? this.BackgroundFader.RemoveFromParent() : null;
+                GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount = (GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount - 1) | 0;
+                !Bridge.staticEquals(($t = this.OnDone), null) ? $t(this.Panel) : null;
+            },
+            Show: function () {
+                var $t;
+                if (this.Panel.Parent != null) {
+                    return;
+                }
+
+                if (this.BackgroundFader != null) {
+                    GeonBit.UI.UserInterface.Active.AddEntity(this.BackgroundFader);
+                    this.BackgroundFader.OnClick = Bridge.fn.bind(this, $asm.$.GeonBit.UI.Utils.MessageBox.MessageBoxHandle.f1);
+                }
+
+                if (this.Parent != null) {
+                    this.Parent.AddChild(this.Panel);
+                } else {
+                    GeonBit.UI.UserInterface.Active.AddEntity(this.Panel);
+                }
+
+                GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount = (GeonBit.UI.Utils.MessageBox.OpenedMsgBoxesCount + 1) | 0;
+
+                !Bridge.staticEquals(($t = this.OnShow), null) ? $t(this.Panel) : null;
             }
+        }
+    });
+
+    Bridge.ns("GeonBit.UI.Utils.MessageBox.MessageBoxHandle", $asm.$);
+
+    Bridge.apply($asm.$.GeonBit.UI.Utils.MessageBox.MessageBoxHandle, {
+        f1: function (b) {
+            this.Close();
         }
     });
 

@@ -60,8 +60,8 @@
             var map = field.Map;
 
             var location = (cursorPosition - position.Position) / (field.BlockSize + field.BlockInterval);
-            var x = (int)location.X;
-            var y = (int)location.Y;
+            var x = (int)Math.Floor(location.X);
+            var y = (int)Math.Floor(location.Y);
 
             if (!this.IsInMap(map, x, y))
             {

@@ -85,47 +85,19 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
     Bridge.define("MyONez.Samples.Base.ContentPaths", {
         statics: {
             fields: {
-                content: null
-            },
-            ctors: {
-                init: function () {
-                    this.content = "Content";
-                }
-            }
-        }
-    });
-
-    Bridge.define("MyONez.Samples.Base.ContentPaths.Basic", {
-        $kind: "nested class",
-        statics: {
-            fields: {
+                content: null,
+                help1: null,
+                help2: null,
+                help3: null,
                 moon: null
             },
             ctors: {
                 init: function () {
-                    this.moon = "Basic/moon";
-                }
-            }
-        }
-    });
-
-    Bridge.define("MyONez.Samples.Base.ContentPaths.SpriteLights", {
-        $kind: "nested class",
-        statics: {
-            fields: {
-                bg: null,
-                moon: null,
-                pixelspritelight: null,
-                spritelight: null,
-                tubelight: null
-            },
-            ctors: {
-                init: function () {
-                    this.bg = "SpriteLights/bg";
-                    this.moon = "SpriteLights/moon";
-                    this.pixelspritelight = "SpriteLights/pixel-sprite-light";
-                    this.spritelight = "SpriteLights/sprite-light";
-                    this.tubelight = "SpriteLights/tube-light";
+                    this.content = "Content";
+                    this.help1 = "help1";
+                    this.help2 = "help2";
+                    this.help3 = "help3";
+                    this.moon = "moon";
                 }
             }
         }
@@ -161,15 +133,13 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         inherits: [MyONez.ECS.Scene],
         statics: {
             fields: {
-                BlockSize: 0,
                 MapSize: 0,
                 ColorsCount: 0
             },
             ctors: {
                 init: function () {
-                    this.BlockSize = 30;
-                    this.MapSize = 19;
-                    this.ColorsCount = 7;
+                    this.MapSize = 7;
+                    this.ColorsCount = 5;
                 }
             }
         },
@@ -206,26 +176,26 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.CounterToTextUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
                 this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
 
-                var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.Basic.moon);
+                var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
 
                 var common = this.CreateEntity("Common");
                 common.AddComponent$1(MyONez.ECS.Components.CameraShakeComponent, new MyONez.ECS.Components.CameraShakeComponent(this.Camera));
 
                 var fieldEntity = this.CreateEntity("Field");
-                fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = new Microsoft.Xna.Framework.Vector2.$ctor2(285, 15);
+                fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = new Microsoft.Xna.Framework.Vector2.$ctor2(285, 5);
                 fieldEntity.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
                 var field = fieldEntity.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
-                field.BlockSize = MyONez.Samples.Base.Screens.BasicScene.BlockSize;
-                field.Map = System.Array.create(0, null, System.Int32, 19, 19);
+                field.BlockSize = 85;
+                field.Map = System.Array.create(0, null, System.Int32, 7, 7);
                 field.Texture = moonTex;
 
                 var colorSelector = this.CreateEntity("ColorSelector");
                 var colorSelectorPosition = colorSelector.AddComponent(MyONez.ECS.Components.PositionComponent);
-                colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((70), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
+                colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0)), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
                 var colorSelectionField = colorSelector.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
                 colorSelectionField.Map = System.Array.create(0, null, System.Int32, 1, MyONez.Samples.Base.Screens.BasicScene.ColorsCount);
                 colorSelectionField.Texture = moonTex;
-                colorSelectionField.BlockSize = 60;
+                colorSelectionField.BlockSize = (((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0) - 10) | 0;
                 colorSelectionField.BlockInterval = 10;
 
                 var player1 = this.CreateEntity("Player1");
@@ -244,22 +214,14 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var counter = counterEntity.AddComponent(MyONez.Samples.Base.Components.CounterComponent);
                 counterEntity.AddComponent(GeonBit.UI.ECS.Components.TextComponent).Text = "Test text;";
                 counterEntity.AddComponent(MyONez.ECS.Components.ColorComponent).Color = Microsoft.Xna.Framework.Color.Gray.$clone();
+                counterEntity.AddComponent(MyONez.ECS.Components.RenderOrderComponent).Order = -1;
 
-                var help = this.CreateEntity("Help");
-                var ui = help.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
+                var uiEntity = this.CreateEntity("UI");
+                var ui = uiEntity.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
                 ui.UserInterface.ShowCursor = false;
                 var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Help"), $t.OnClick = function (b) {
-                    player1.Enabled = false;
-                    player2.Enabled = false;
-                    GeonBit.UI.Utils.MessageBox.ShowMsgBox$1("Help", "Turn base flood it game.\n AIBot start in top left corner. \nYou start in bottom right corner. \nEach turn you select a color to flood your corner with by clicking on a colored cell on a field. \nIf any player reach size more then half of a field - game is over.", void 0, void 0, void 0, function () {
-                        player1.Enabled = true;
-                        player2.Enabled = true;
-                    });
-                }, $t));
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Restart"), $t.OnClick = Bridge.fn.bind(this, function (b) {
-                    this.Restart(field, counter);
-                }), $t));
+
+                var helpMessageBox = this.BuildHelpMessageBox(player1, player2);
 
                 var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1");
                 var player1DropDown = new GeonBit.UI.Entities.DropDown.ctor();
@@ -284,23 +246,32 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 player2DropDown.AddItem("Med.");
                 player2DropDown.AddItem("Hard");
                 player2DropDown.SelectedValue = "Hard";
-                var messageBox = GeonBit.UI.Utils.MessageBox.ShowMsgBox$1("Settings", "", "Set", void 0, System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown], GeonBit.UI.Entities.Entity), Bridge.fn.bind(this, function () {
+                var settingsMessageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", void 0, System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown], GeonBit.UI.Entities.Entity));
+                settingsMessageBox.OnDone = Bridge.fn.bind(this, function (b) {
                     player1.Enabled = true;
                     player2.Enabled = true;
                     counter.Player1Name = player1DropDown.SelectedValue;
                     counter.Player2Name = player2DropDown.SelectedValue;
                     MyONez.Samples.Base.Screens.BasicScene.ColorsCount = System.Int32.parse(colorsCountDropDown.SelectedValue);
                     colorSelectionField.Map = System.Array.create(0, null, System.Int32, 1, MyONez.Samples.Base.Screens.BasicScene.ColorsCount);
-                    colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((70), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
+                    colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - (181.428574) * MyONez.Samples.Base.Screens.BasicScene.ColorsCount / 2.0);
                     this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                     this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                     this.Restart(field, counter);
-                }));
-                messageBox.Close();
+                });
+
+                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Help"), $t.OnClick = function (b) {
+                    helpMessageBox.Show();
+                }, $t));
+
+                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Restart"), $t.OnClick = Bridge.fn.bind(this, function (b) {
+                    this.Restart(field, counter);
+                }), $t));
+
                 panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
+                    settingsMessageBox.Show();
                     player1.Enabled = false;
                     player2.Enabled = false;
-                    ui.UserInterface.AddEntity(messageBox.Panel);
                 }, $t));
 
                 counter.Player1Name = player1DropDown.SelectedValue;
@@ -308,11 +279,48 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                 this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
+
+                GeonBit.UI.UserInterface.Active = ui.UserInterface;
+                helpMessageBox.Show();
             }
         },
         methods: {
+            BuildHelpMessageBox: function (player1, player2) {
+                var images = System.Array.init([this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help1), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help2), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help3)], Microsoft.Xna.Framework.Graphics.Texture2D);
+
+                var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(900, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
+                var button = new GeonBit.UI.Entities.Button.$ctor1("next ->", 0, GeonBit.UI.Entities.Anchor.BottomCenter, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 50), void 0);
+
+                var messageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox("", "", System.Array.init(0, null, GeonBit.UI.Utils.MessageBox.MsgBoxOption), System.Array.init([image, button], GeonBit.UI.Entities.Entity), new Microsoft.Xna.Framework.Vector2.$ctor2(1000, 600));
+
+                var currentImage = 0;
+                button.OnClick = (image.OnClick = function (b) {
+                    if (((currentImage + 1) | 0) === images.length) {
+                        messageBox.Close();
+                        return;
+                    }
+
+                    currentImage = (currentImage + 1) | 0;
+                    image.Texture = images[System.Array.index(currentImage, images)];
+
+                });
+
+                messageBox.OnDone = function (b) {
+                    player1.Enabled = true;
+                    player2.Enabled = true;
+                };
+
+                messageBox.OnShow = function (b) {
+                    currentImage = 0;
+                    image.Texture = images[System.Array.index(currentImage, images)];
+                    player1.Enabled = false;
+                    player2.Enabled = false;
+                };
+
+                return messageBox;
+            },
             InitPlayer: function (playerId, player, playerTurn, selectedValue, fieldMap) {
-                var pos = (playerId === 0) ? 0 : 18;
+                var pos = (playerId === 0) ? 0 : 6;
 
                 player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);
@@ -607,8 +615,8 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 var map = field.Map;
 
                 var location = Microsoft.Xna.Framework.Vector2.op_Division$1((Microsoft.Xna.Framework.Vector2.op_Subtraction(cursorPosition.$clone(), position.Position.$clone())), (((field.BlockSize + field.BlockInterval) | 0)));
-                var x = Bridge.Int.clip32(location.X);
-                var y = Bridge.Int.clip32(location.Y);
+                var x = Bridge.Int.clip32(Math.floor(location.X));
+                var y = Bridge.Int.clip32(Math.floor(location.Y));
 
                 if (!this.IsInMap(map, x, y)) {
                     return false;
@@ -725,7 +733,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 }
 
                 var field = this.scene.FindEntity("Field").GetComponent(MyONez.Samples.Base.Components.FieldComponent);
-                if (counter.Player1Size > 180 || counter.Player2Size > 180) {
+                if (counter.Player1Size > 24 || counter.Player2Size > 24) {
                     this.GameOver(counter, field);
                 }
             },
