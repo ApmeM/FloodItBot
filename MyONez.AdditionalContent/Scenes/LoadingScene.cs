@@ -25,13 +25,12 @@
             Core.Instance.Screen.SetSize(width, height);
             this.AddRenderer(new DefaultRenderer());
 
-            
             var progress = this.CreateEntity("progress");
             var progressComponent = progress.AddComponent<ProgressComponent>();
             progressComponent.Total = loadings.Sum(a => a.Count);
         
             this.AddEntitySystem(new LoadElementUpdateSystem(loadings, progressComponent));
-            this.AddEntitySystem(new ProgressMeshGeneratorSystem(this));
+            this.AddEntitySystem(new ProgressMeshGeneratorSystem());
         }
 
         public class ProgressComponent : Component
@@ -47,7 +46,7 @@
 
             private readonly ProgressComponent progress;
 
-            private int currentLoading = 0;
+            private int currentLoading;
 
             public LoadElementUpdateSystem(List<LoadingData> loadings, ProgressComponent progress)
             {
@@ -58,7 +57,7 @@
             public override void DoAction(TimeSpan gameTime)
             {
                 base.DoAction(gameTime);
-                if (this.loadings.Count == currentLoading)
+                if (this.loadings.Count == this.currentLoading)
                 {
                     Core.Instance.SwitchScene(new T());
                     return;
@@ -77,11 +76,9 @@
 
         public class ProgressMeshGeneratorSystem : EntityProcessingSystem
         {
-            private readonly LoadingScene<T> scene;
 
-            public ProgressMeshGeneratorSystem(LoadingScene<T> scene) : base(new Matcher().All(typeof(ProgressComponent)))
+            public ProgressMeshGeneratorSystem() : base(new Matcher().All(typeof(ProgressComponent)))
             {
-                this.scene = scene;
             }
 
             protected override void DoAction(Entity entity, TimeSpan gameTime)
