@@ -238,7 +238,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.CounterToTextUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
                 this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
 
-                var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
+                var moonTex = MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
 
                 var common = this.CreateEntity("Common");
                 common.AddComponent$1(MyONez.ECS.Components.CameraShakeComponent, new MyONez.ECS.Components.CameraShakeComponent(this.Camera));
@@ -348,7 +348,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         },
         methods: {
             BuildHelpMessageBox: function (player1, player2) {
-                var images = System.Array.init([this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help1), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help2), this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help3)], Microsoft.Xna.Framework.Graphics.Texture2D);
+                var images = System.Array.init([MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help1), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help2), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.help3)], Microsoft.Xna.Framework.Graphics.Texture2D);
 
                 var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(656, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
                 var button = new GeonBit.UI.Entities.Button.$ctor1("next ->", 0, GeonBit.UI.Entities.Anchor.BottomCenter, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 50), void 0);
