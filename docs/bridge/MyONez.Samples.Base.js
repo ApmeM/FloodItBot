@@ -253,8 +253,8 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                 var colorSelector = this.CreateEntity("ColorSelector");
                 var colorSelectorPosition = colorSelector.AddComponent(MyONez.ECS.Components.PositionComponent);
-                colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0)), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
                 var colorSelectionField = colorSelector.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
+                colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0)), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
                 colorSelectionField.Map = System.Array.create(0, null, System.Int32, 1, MyONez.Samples.Base.Screens.BasicScene.ColorsCount);
                 colorSelectionField.Texture = moonTex;
                 colorSelectionField.BlockSize = (((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0) - 10) | 0;
@@ -315,8 +315,11 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                     counter.Player1Name = player1DropDown.SelectedValue;
                     counter.Player2Name = player2DropDown.SelectedValue;
                     MyONez.Samples.Base.Screens.BasicScene.ColorsCount = System.Int32.parse(colorsCountDropDown.SelectedValue);
+                    colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - Bridge.Int.mul((((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0)), MyONez.Samples.Base.Screens.BasicScene.ColorsCount) / 2.0);
                     colorSelectionField.Map = System.Array.create(0, null, System.Int32, 1, MyONez.Samples.Base.Screens.BasicScene.ColorsCount);
-                    colorSelectorPosition.Position = new Microsoft.Xna.Framework.Vector2.$ctor2(1000, MyONez.Core.Instance.Screen.Center.Y - (181.428574) * MyONez.Samples.Base.Screens.BasicScene.ColorsCount / 2.0);
+                    colorSelectionField.Texture = moonTex;
+                    colorSelectionField.BlockSize = (((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0) - 10) | 0;
+                    colorSelectionField.BlockInterval = 10;
                     this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                     this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                     this.Restart(field, counter);
