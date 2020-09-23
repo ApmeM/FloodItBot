@@ -32,7 +32,7 @@
 
     public class BasicScene : Scene
     {
-        public const int MapSize = 7;
+        public static int MapSize = 7;
 
         public static int ColorsCount = 5;
 
@@ -117,38 +117,49 @@
 
             var helpMessageBox = BuildHelpMessageBox(player1, player2);
 
-            var player1Label = new Label("Player 1");
-            var player1DropDown = new DropDown();
+            var player1Label = new Label("Player 1", Anchor.TopLeft, null, new Vector2(0, 60));
+            var player1DropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(0, 90));
             player1DropDown.AddItem("User");
             player1DropDown.AddItem("Easy");
             player1DropDown.AddItem("Med.");
             player1DropDown.AddItem("Hard");
             player1DropDown.SelectedValue = "User";
 
-            var colorsCountLabel = new Label("Colors count");
-            var colorsCountDropDown = new DropDown();
+            var player2Label = new Label("Player 2", Anchor.TopLeft, null, new Vector2(300, 60));
+            var player2DropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(300, 90));
+            player2DropDown.AddItem("User");
+            player2DropDown.AddItem("Easy");
+            player2DropDown.AddItem("Med.");
+            player2DropDown.AddItem("Hard");
+            player2DropDown.SelectedValue = "Hard";
+
+            var colorsCountLabel = new Label("Colors count", Anchor.TopLeft, null, new Vector2(0, 180));
+            var colorsCountDropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(0, 210));
             colorsCountDropDown.AddItem("4");
             colorsCountDropDown.AddItem("5");
             colorsCountDropDown.AddItem("6");
             colorsCountDropDown.AddItem("7");
             colorsCountDropDown.SelectedValue = "5";
 
-            var player2Label = new Label("Player 1");
-            var player2DropDown = new DropDown();
-            player2DropDown.AddItem("User");
-            player2DropDown.AddItem("Easy");
-            player2DropDown.AddItem("Med.");
-            player2DropDown.AddItem("Hard");
-            player2DropDown.SelectedValue = "Hard";
+            var fieldSizeLabel = new Label("Field size", Anchor.TopLeft, null, new Vector2(300, 180));
+            var fieldSizeDropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(300, 210));
+            fieldSizeDropDown.AddItem("7");
+            fieldSizeDropDown.AddItem("11");
+            fieldSizeDropDown.AddItem("15");
+            fieldSizeDropDown.AddItem("19");
+            fieldSizeDropDown.SelectedValue = "7";
+
             var settingsMessageBox = MessageBox.BuildMessageBox(
                 "Settings",
                 "",
                 "Set",
-                extraEntities: new Entity[]
+                new Vector2(600, 450),
+                new Entity[]
                 {
                     player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel,
-                    colorsCountDropDown
+                    colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown
                 });
+
             settingsMessageBox.OnDone = (b) =>
             {
                 player1.Enabled = true;
@@ -161,6 +172,12 @@
                 colorSelectionField.Texture = moonTex;
                 colorSelectionField.BlockSize = 400 / ColorsCount - 10;
                 colorSelectionField.BlockInterval = 10;
+
+                MapSize = int.Parse(fieldSizeDropDown.SelectedValue);
+                field.BlockSize = 600 / MapSize;
+                field.Map = new int[MapSize, MapSize];
+                field.Texture = moonTex;
+
                 this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                 this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
