@@ -247,8 +247,8 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 fieldEntity.AddComponent(MyONez.ECS.Components.PositionComponent).Position = new Microsoft.Xna.Framework.Vector2.$ctor2(285, 5);
                 fieldEntity.AddComponent(MyONez.Samples.Base.Components.TurnMadeComponent);
                 var field = fieldEntity.AddComponent(MyONez.Samples.Base.Components.FieldComponent);
-                field.BlockSize = 85;
-                field.Map = System.Array.create(0, null, System.Int32, 7, 7);
+                field.BlockSize = (Bridge.Int.div(600, MyONez.Samples.Base.Screens.BasicScene.MapSize)) | 0;
+                field.Map = System.Array.create(0, null, System.Int32, MyONez.Samples.Base.Screens.BasicScene.MapSize, MyONez.Samples.Base.Screens.BasicScene.MapSize);
                 field.Texture = moonTex;
 
                 var colorSelector = this.CreateEntity("ColorSelector");
@@ -285,30 +285,40 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
 
                 var helpMessageBox = this.BuildHelpMessageBox(player1, player2);
 
-                var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1");
-                var player1DropDown = new GeonBit.UI.Entities.DropDown.ctor();
+                var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
+                var player1DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
                 player1DropDown.AddItem("User");
                 player1DropDown.AddItem("Easy");
                 player1DropDown.AddItem("Med.");
                 player1DropDown.AddItem("Hard");
                 player1DropDown.SelectedValue = "User";
 
-                var colorsCountLabel = new GeonBit.UI.Entities.Label.$ctor1("Colors count");
-                var colorsCountDropDown = new GeonBit.UI.Entities.DropDown.ctor();
+                var player2Label = new GeonBit.UI.Entities.Label.$ctor1("Player 2", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 60));
+                var player2DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 90));
+                player2DropDown.AddItem("User");
+                player2DropDown.AddItem("Easy");
+                player2DropDown.AddItem("Med.");
+                player2DropDown.AddItem("Hard");
+                player2DropDown.SelectedValue = "Hard";
+
+                var colorsCountLabel = new GeonBit.UI.Entities.Label.$ctor1("Colors count", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 180));
+                var colorsCountDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 210));
                 colorsCountDropDown.AddItem("4");
                 colorsCountDropDown.AddItem("5");
                 colorsCountDropDown.AddItem("6");
                 colorsCountDropDown.AddItem("7");
                 colorsCountDropDown.SelectedValue = "5";
 
-                var player2Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1");
-                var player2DropDown = new GeonBit.UI.Entities.DropDown.ctor();
-                player2DropDown.AddItem("User");
-                player2DropDown.AddItem("Easy");
-                player2DropDown.AddItem("Med.");
-                player2DropDown.AddItem("Hard");
-                player2DropDown.SelectedValue = "Hard";
-                var settingsMessageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", void 0, System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown], GeonBit.UI.Entities.Entity));
+                var fieldSizeLabel = new GeonBit.UI.Entities.Label.$ctor1("Field size", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 180));
+                var fieldSizeDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 210));
+                fieldSizeDropDown.AddItem("7");
+                fieldSizeDropDown.AddItem("11");
+                fieldSizeDropDown.AddItem("15");
+                fieldSizeDropDown.AddItem("19");
+                fieldSizeDropDown.SelectedValue = "7";
+
+                var settingsMessageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", new Microsoft.Xna.Framework.Vector2.$ctor2(600, 450), System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown], GeonBit.UI.Entities.Entity));
+
                 settingsMessageBox.OnDone = Bridge.fn.bind(this, function (b) {
                     player1.Enabled = true;
                     player2.Enabled = true;
@@ -320,6 +330,12 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                     colorSelectionField.Texture = moonTex;
                     colorSelectionField.BlockSize = (((Bridge.Int.div(400, MyONez.Samples.Base.Screens.BasicScene.ColorsCount)) | 0) - 10) | 0;
                     colorSelectionField.BlockInterval = 10;
+
+                    MyONez.Samples.Base.Screens.BasicScene.MapSize = System.Int32.parse(fieldSizeDropDown.SelectedValue);
+                    field.BlockSize = (Bridge.Int.div(600, MyONez.Samples.Base.Screens.BasicScene.MapSize)) | 0;
+                    field.Map = System.Array.create(0, null, System.Int32, MyONez.Samples.Base.Screens.BasicScene.MapSize, MyONez.Samples.Base.Screens.BasicScene.MapSize);
+                    field.Texture = moonTex;
+
                     this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
                     this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
                     this.Restart(field, counter);
@@ -385,7 +401,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 return messageBox;
             },
             InitPlayer: function (playerId, player, playerTurn, selectedValue, fieldMap) {
-                var pos = (playerId === 0) ? 0 : 6;
+                var pos = (playerId === 0) ? 0 : ((MyONez.Samples.Base.Screens.BasicScene.MapSize - 1) | 0);
 
                 player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);
@@ -798,7 +814,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 }
 
                 var field = this.scene.FindEntity("Field").GetComponent(MyONez.Samples.Base.Components.FieldComponent);
-                if (counter.Player1Size > 24 || counter.Player2Size > 24) {
+                if (counter.Player1Size > ((Bridge.Int.div(Bridge.Int.mul(MyONez.Samples.Base.Screens.BasicScene.MapSize, MyONez.Samples.Base.Screens.BasicScene.MapSize), 2)) | 0) || counter.Player2Size > ((Bridge.Int.div(Bridge.Int.mul(MyONez.Samples.Base.Screens.BasicScene.MapSize, MyONez.Samples.Base.Screens.BasicScene.MapSize), 2)) | 0)) {
                     this.GameOver(counter, field);
                 }
             },
