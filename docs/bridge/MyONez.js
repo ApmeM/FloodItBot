@@ -34,6 +34,20 @@ Bridge.assembly("MyONez", function ($asm, globals) {
         }
     });
 
+    Bridge.define("MyONez.ContentPaths.Textures", {
+        $kind: "nested class",
+        statics: {
+            fields: {
+                pixel: null
+            },
+            ctors: {
+                init: function () {
+                    this.pixel = "textures/pixel";
+                }
+            }
+        }
+    });
+
     Bridge.define("MyONez.Core", {
         inherits: [Microsoft.Xna.Framework.Game],
         statics: {
@@ -4546,7 +4560,7 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                  */
                 PixelTexture: {
                     get: function () {
-                        MyONez.Graphics.Graphic.pixelTexture = MyONez.Graphics.Graphic.pixelTexture || MyONez.Graphics.Graphic.CreateSingleColorTexture(1, 1, Microsoft.Xna.Framework.Color.White.$clone());
+                        MyONez.Graphics.Graphic.pixelTexture = MyONez.Graphics.Graphic.pixelTexture || MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.ContentPaths.Textures.pixel);
                         return MyONez.Graphics.Graphic.pixelTexture;
                     }
                 },
@@ -4569,18 +4583,6 @@ Bridge.assembly("MyONez", function ($asm, globals) {
                 }
             },
             methods: {
-                CreateSingleColorTexture: function (width, height, color) {
-                    var texture = new Microsoft.Xna.Framework.Graphics.Texture2D.ctor(MyONez.Core.Instance.GraphicsDevice, width, height);
-                    var data = System.Array.init(Bridge.Int.mul(width, height), function (){
-                        return new Microsoft.Xna.Framework.Color();
-                    }, Microsoft.Xna.Framework.Color);
-                    for (var i = 0; i < data.length; i = (i + 1) | 0) {
-                        data[System.Array.index(i, data)] = color.$clone();
-                    }
-
-                    texture.SetData(Microsoft.Xna.Framework.Color, data);
-                    return texture;
-                },
                 Draw: function (finalRenderTarget, clearColor, batch, material) {
                     var $t;
                     var graphicsDevice = MyONez.Core.Instance.GraphicsDevice;

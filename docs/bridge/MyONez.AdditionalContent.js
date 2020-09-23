@@ -1863,13 +1863,12 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
                 MyONez.Core.Instance.Screen.SetSize(width, height);
                 this.AddRenderer(MyONez.Graphics.Renderers.DefaultRenderer, new MyONez.Graphics.Renderers.DefaultRenderer());
 
-
                 var progress = this.CreateEntity("progress");
                 var progressComponent = progress.AddComponent(MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent(T));
                 progressComponent.Total = System.Linq.Enumerable.from(loadings).sum($asm.$.MyONez.AdditionalContent.Scenes.LoadingScene$1.f1);
 
                 this.AddEntitySystem(new (MyONez.AdditionalContent.Scenes.LoadingScene$1.LoadElementUpdateSystem(T))(loadings, progressComponent));
-                this.AddEntitySystem(new (MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressMeshGeneratorSystem(T))(this));
+                this.AddEntitySystem(new (MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressMeshGeneratorSystem(T))());
             }
         }
     }; });
@@ -1891,9 +1890,6 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
             currentLoading: 0
         },
         ctors: {
-            init: function () {
-                this.currentLoading = 0;
-            },
             ctor: function (loadings, progress) {
                 this.$initialize();
                 LocomotorECS.EntitySystem.ctor.call(this);
@@ -1932,14 +1928,10 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
     Bridge.define("MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressMeshGeneratorSystem", function (T) { return {
         inherits: [LocomotorECS.EntityProcessingSystem],
         $kind: "nested class",
-        fields: {
-            scene: null
-        },
         ctors: {
-            ctor: function (scene) {
+            ctor: function () {
                 this.$initialize();
                 LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.Scenes.LoadingScene$1.ProgressComponent(T)]));
-                this.scene = scene;
             }
         },
         methods: {
@@ -2089,7 +2081,6 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
             FadeOutDuration: 0,
             FadeToColor: null,
             fromColor: null,
-            overlayTexture: null,
             toColor: null,
             color: null
         },
@@ -2123,9 +2114,7 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
                         for (;;) {
                             switch ($step) {
                                 case 0: {
-                                    this.overlayTexture = MyONez.Graphics.Graphic.CreateSingleColorTexture(1, 1, this.FadeToColor.$clone());
-
-                                        startAt = System.DateTime.getNow();
+                                    startAt = System.DateTime.getNow();
                                     $step = 1;
                                     continue;
                                 }
@@ -2185,7 +2174,6 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
                                 }
                                 case 9: {
                                     this.TransitionComplete();
-                                        this.overlayTexture.Dispose();
 
                                 }
                                 default: {
