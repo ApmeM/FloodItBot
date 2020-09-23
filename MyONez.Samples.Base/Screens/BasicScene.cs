@@ -66,7 +66,7 @@
             this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, TextUIUpdateSystem>();
             this.AddEntitySystemExecutionOrder<UIUpdateSystem, TextUIUpdateSystem>();
 
-            var moonTex = this.Content.Load<Texture2D>(ContentPaths.moon);
+            var moonTex = Core.Instance.Content.Load<Texture2D>(ContentPaths.moon);
 
             var common = this.CreateEntity("Common");
             common.AddComponent(new CameraShakeComponent(this.Camera));
@@ -205,9 +205,9 @@
         {
             var images = new[]
             {
-                this.Content.Load<Texture2D>(ContentPaths.help1),
-                this.Content.Load<Texture2D>(ContentPaths.help2),
-                this.Content.Load<Texture2D>(ContentPaths.help3)
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.help1),
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.help2),
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.help3)
             };
 
             var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(656, 500));
