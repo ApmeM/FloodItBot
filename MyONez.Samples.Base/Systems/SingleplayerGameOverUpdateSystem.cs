@@ -9,11 +9,11 @@
     using MyONez.Samples.Base.Components;
     using MyONez.Samples.Base.Screens;
 
-    public class GameOverUpdateSystem : EntityProcessingSystem
+    public class SingleplayerGameOverUpdateSystem : EntityProcessingSystem
     {
-        private readonly BasicScene scene;
+        private readonly SingleplayerScene scene;
 
-        public GameOverUpdateSystem(BasicScene scene)
+        public SingleplayerGameOverUpdateSystem(SingleplayerScene scene)
             : base(new Matcher().All(typeof(CounterComponent)))
         {
             this.scene = scene;
@@ -30,24 +30,34 @@
             }
 
             var field = this.scene.FindEntity("Field").GetComponent<FieldComponent>();
-            if (counter.Player1Size > BasicScene.MapSize * BasicScene.MapSize / 2 || counter.Player2Size > BasicScene.MapSize * BasicScene.MapSize / 2)
+            if (counter.TurnsMade == SingleplayerScene.AvailableTurns)
             {
-                this.GameOver(counter, field);
+                this.GameOver(counter, field, false);
+                return;
             }
+
+            var color = field.Map[0, 0];
+
+            for (var x = 0; x < field.Map.GetLength(0); x++)
+            for (var y = 0; y < field.Map.GetLength(1); y++)
+            {
+                if(field.Map[x,y] != color)
+                {
+                    return;
+                }
+            }
+
+            this.GameOver(counter, field, true);
         }
 
-        private void GameOver(CounterComponent counter, FieldComponent field)
+        private void GameOver(CounterComponent counter, FieldComponent field, bool isWin)
         {
-            if (counter.Player1Size > counter.Player2Size)
+            if (isWin)
             {
-                counter.Player1Wins++;
+                counter.Players[0].Wins++;
             }
 
-            if (counter.Player1Size < counter.Player2Size)
-            {
-                counter.Player2Wins++;
-            }
-            
+            counter.GamesPlayed++;
             counter.GameOver = true;
             Core.Instance.SwitchScene(
                 new WindTransition

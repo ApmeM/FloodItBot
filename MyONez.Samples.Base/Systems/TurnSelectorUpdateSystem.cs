@@ -25,34 +25,25 @@
                 return;
             }
             
-            
             var turn = entity.GetComponent<TurnMadeComponent>();
             var switcher = entity.GetComponent<PlayerSwitcherComponent>();
 
-            TurnMadeComponent player;
-            TurnMadeComponent playerStart;
-            if (switcher.Player == switcher.Player1.Player)
-            {
-                player = switcher.Player1;
-                playerStart = switcher.Player2;
-            }
-            else
-            {
-                player = switcher.Player2;
-                playerStart = switcher.Player1;
-            }
+            var player = switcher.Players[switcher.CurrentPlayer];
 
             if (!player.TurnMade)
             {
                 return;
             }
 
+            switcher.CurrentPlayer = (switcher.CurrentPlayer + 1) % switcher.Players.Count;
+            var nextPlayer = switcher.Players[switcher.CurrentPlayer];
+
             this.elapsed = TimeSpan.Zero;
 
             turn.Color = player.Color;
-            turn.Player = player.Player;
-            switcher.Player = 1 - switcher.Player;
-            playerStart.TurnMade = false;
+            turn.PlayerX = player.PlayerX;
+            turn.PlayerY = player.PlayerY;
+            nextPlayer.TurnMade = false;
         }
     }
 }

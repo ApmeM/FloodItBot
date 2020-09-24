@@ -6,14 +6,14 @@
 
     public class RandomFloodItAI : BaseFloodItAI
     {
-        public RandomFloodItAI(TurnMadeComponent turn, int startX, int startY)
-            : base(turn, startX, startY)
+        public RandomFloodItAI(TurnMadeComponent turn, PlayerSwitcherComponent switcher)
+            : base(turn, switcher)
         {
         }
 
         public override int Act()
         {
-            return Random.NextInt(BasicScene.ColorsCount);
+            return Random.NextInt(SharedData.ColorsCount);
         }
     }
 }

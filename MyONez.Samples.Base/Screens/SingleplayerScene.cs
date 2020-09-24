@@ -3,6 +3,7 @@
     #region Using Directives
 
     using System.Collections;
+    using System.Collections.Generic;
 
     using BrainAI.AI.FSM;
     using BrainAI.ECS.Components;
@@ -30,13 +31,11 @@
 
     #endregion
 
-    public class BasicScene : Scene
+    public class SingleplayerScene : Scene
     {
-        public static int MapSize = 7;
+        public static int AvailableTurns => (int)(SharedData.MapSize * 1.65);
 
-        public static int ColorsCount = 5;
-
-        public BasicScene()
+        public SingleplayerScene()
         {
             this.SetDesignResolution(1200, 600, SceneResolutionPolicy.None);
             Core.Instance.Screen.SetSize(1200, 600);
@@ -47,7 +46,7 @@
             this.AddEntitySystem(new FieldClickUpdateSystem(this));
             this.AddEntitySystem(new ApplyTurnUpdateSystem(this));
             this.AddEntitySystem(new CounterToTextUpdateSystem());
-            this.AddEntitySystem(new GameOverUpdateSystem(this));
+            this.AddEntitySystem(new SingleplayerGameOverUpdateSystem(this));
             this.AddEntitySystem(new TextUIUpdateSystem());
             this.AddEntitySystem(new AIUpdateSystem());
             this.AddEntitySystem(new UIUpdateSystem(Core.Instance.Content));
@@ -58,15 +57,15 @@
             this.AddEntitySystemExecutionOrder<FieldClickUpdateSystem, TurnSelectorUpdateSystem>();
             this.AddEntitySystemExecutionOrder<TurnSelectorUpdateSystem, ApplyTurnUpdateSystem>();
             this.AddEntitySystemExecutionOrder<ApplyTurnUpdateSystem, FieldMeshGeneratorSystem>();
-            this.AddEntitySystemExecutionOrder<ApplyTurnUpdateSystem, GameOverUpdateSystem>();
+            this.AddEntitySystemExecutionOrder<ApplyTurnUpdateSystem, SingleplayerGameOverUpdateSystem>();
             this.AddEntitySystemExecutionOrder<ApplyTurnUpdateSystem, CounterToTextUpdateSystem>();
             this.AddEntitySystemExecutionOrder<ApplyTurnUpdateSystem, ColorSelectorGrayingUpdateSystem>();
             this.AddEntitySystemExecutionOrder<ColorSelectorGrayingUpdateSystem, FieldMeshGeneratorSystem>();
-            this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, GameOverUpdateSystem>();
+            this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, SingleplayerGameOverUpdateSystem>();
             this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, TextUIUpdateSystem>();
             this.AddEntitySystemExecutionOrder<UIUpdateSystem, TextUIUpdateSystem>();
 
-            var moonTex = Core.Instance.Content.Load<Texture2D>(ContentPaths.moon);
+            var moonTex = this.Content.Load<Texture2D>(ContentPaths.moon);
 
             var common = this.CreateEntity("Common");
             common.AddComponent(new CameraShakeComponent(this.Camera));
@@ -75,47 +74,44 @@
             fieldEntity.AddComponent<PositionComponent>().Position = new Vector2(285, 5);
             fieldEntity.AddComponent<TurnMadeComponent>();
             var field = fieldEntity.AddComponent<FieldComponent>();
-            field.BlockSize = 600 / MapSize;
-            field.Map = new int[MapSize, MapSize];
+            field.BlockSize = 600 / SharedData.MapSize;
+            field.Map = new int[SharedData.MapSize, SharedData.MapSize];
             field.Texture = moonTex;
 
             var colorSelector = this.CreateEntity("ColorSelector");
             var colorSelectorPosition = colorSelector.AddComponent<PositionComponent>();
             var colorSelectionField = colorSelector.AddComponent<FieldComponent>();
-            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
-            colorSelectionField.Map = new int[1, ColorsCount];
+            colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / SharedData.ColorsCount) * SharedData.ColorsCount / 2f);
+            colorSelectionField.Map = new int[1, SharedData.ColorsCount];
             colorSelectionField.Texture = moonTex;
-            colorSelectionField.BlockSize = 400 / ColorsCount - 10;
+            colorSelectionField.BlockSize = 400 / SharedData.ColorsCount - 10;
             colorSelectionField.BlockInterval = 10;
 
             var player1 = this.CreateEntity("Player1");
             var player1Turn = player1.AddComponent<TurnMadeComponent>();
-            player1Turn.Player = 0;
-            player1Turn.TurnMade = false;
+            player1Turn.PlayerX = 0;
+            player1Turn.PlayerY = 0;
+            player1Turn.TurnMade = true;
 
-            var player2 = this.CreateEntity("Player2");
-            var player2Turn = player2.AddComponent<TurnMadeComponent>();
-            player2Turn.Player = 1;
-            player2Turn.TurnMade = true;
+            var switcher = fieldEntity.AddComponent(
+                new PlayerSwitcherComponent { Players = new List<TurnMadeComponent> { player1Turn } });
 
-            fieldEntity.AddComponent(new PlayerSwitcherComponent
-            {
-                Player1 = player1Turn,
-                Player2 = player2Turn
-            });
-            
+            player1.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(field.Map, new GreedyFloodItAI(player1Turn, switcher));
+
             var counterEntity = this.CreateEntity("Counter");
             var counter = counterEntity.AddComponent<CounterComponent>();
+            counter.Players.Add(new CounterComponent.PlayerData());
             counterEntity.AddComponent<TextComponent>().Text = "Test text;";
             counterEntity.AddComponent<ColorComponent>().Color = Color.Gray;
-            counterEntity.AddComponent<RenderOrderComponent>().Order = -1;
+
+            this.Restart(field, counter);
 
             var uiEntity = this.CreateEntity("UI");
             var ui = uiEntity.AddComponent<UIComponent>();
             ui.UserInterface.ShowCursor = false;
             var panel = ui.UserInterface.AddEntity(new Panel(new Vector2(250, 250), PanelSkin.None, Anchor.CenterLeft));
 
-            var helpMessageBox = BuildHelpMessageBox(player1, player2);
+            var helpMessageBox = BuildHelpMessageBox(player1);
 
             var player1Label = new Label("Player 1", Anchor.TopLeft, null, new Vector2(0, 60));
             var player1DropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(0, 90));
@@ -125,21 +121,13 @@
             player1DropDown.AddItem("Hard");
             player1DropDown.SelectedValue = "User";
 
-            var player2Label = new Label("Player 2", Anchor.TopLeft, null, new Vector2(300, 60));
-            var player2DropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(300, 90));
-            player2DropDown.AddItem("User");
-            player2DropDown.AddItem("Easy");
-            player2DropDown.AddItem("Med.");
-            player2DropDown.AddItem("Hard");
-            player2DropDown.SelectedValue = "Hard";
-
             var colorsCountLabel = new Label("Colors count", Anchor.TopLeft, null, new Vector2(0, 180));
             var colorsCountDropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(0, 210));
             colorsCountDropDown.AddItem("4");
             colorsCountDropDown.AddItem("5");
             colorsCountDropDown.AddItem("6");
             colorsCountDropDown.AddItem("7");
-            colorsCountDropDown.SelectedValue = "5";
+            colorsCountDropDown.SelectedValue = SharedData.ColorsCount.ToString();
 
             var fieldSizeLabel = new Label("Field size", Anchor.TopLeft, null, new Vector2(300, 180));
             var fieldSizeDropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(300, 210));
@@ -147,7 +135,7 @@
             fieldSizeDropDown.AddItem("11");
             fieldSizeDropDown.AddItem("15");
             fieldSizeDropDown.AddItem("19");
-            fieldSizeDropDown.SelectedValue = "7";
+            fieldSizeDropDown.SelectedValue = SharedData.MapSize.ToString();
 
             var settingsMessageBox = MessageBox.BuildMessageBox(
                 "Settings",
@@ -156,30 +144,27 @@
                 new Vector2(600, 450),
                 new Entity[]
                 {
-                    player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel,
+                    player1Label, player1DropDown, colorsCountLabel,
                     colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown
                 });
 
             settingsMessageBox.OnDone = (b) =>
             {
                 player1.Enabled = true;
-                player2.Enabled = true;
-                counter.Player1Name = player1DropDown.SelectedValue;
-                counter.Player2Name = player2DropDown.SelectedValue;
-                ColorsCount = int.Parse(colorsCountDropDown.SelectedValue);
-                colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / ColorsCount) * ColorsCount / 2f);
-                colorSelectionField.Map = new int[1, ColorsCount];
+                counter.Players[0].Name = player1DropDown.SelectedValue;
+                SharedData.ColorsCount = int.Parse(colorsCountDropDown.SelectedValue);
+                colorSelectorPosition.Position = new Vector2(1000, Core.Instance.Screen.Center.Y - (400 / SharedData.ColorsCount) * SharedData.ColorsCount / 2f);
+                colorSelectionField.Map = new int[1, SharedData.ColorsCount];
                 colorSelectionField.Texture = moonTex;
-                colorSelectionField.BlockSize = 400 / ColorsCount - 10;
+                colorSelectionField.BlockSize = 400 / SharedData.ColorsCount - 10;
                 colorSelectionField.BlockInterval = 10;
 
-                MapSize = int.Parse(fieldSizeDropDown.SelectedValue);
-                field.BlockSize = 600 / MapSize;
-                field.Map = new int[MapSize, MapSize];
+                SharedData.MapSize = int.Parse(fieldSizeDropDown.SelectedValue);
+                field.BlockSize = 600 / SharedData.MapSize;
+                field.Map = new int[SharedData.MapSize, SharedData.MapSize];
                 field.Texture = moonTex;
 
-                this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
-                this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
+                this.InitPlayer(player1, player1Turn, switcher, player1DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
             };
 
@@ -205,27 +190,27 @@
                     {
                         settingsMessageBox.Show();
                         player1.Enabled = false;
-                        player2.Enabled = false;
                     }
                 });
 
-            counter.Player1Name = player1DropDown.SelectedValue;
-            counter.Player2Name = player2DropDown.SelectedValue;
-            this.InitPlayer(0, player1, player1Turn, player1DropDown.SelectedValue, field.Map);
-            this.InitPlayer(1, player2, player2Turn, player2DropDown.SelectedValue, field.Map);
+            panel.AddChild(
+                new Button("Back") { OnClick = (b) => { Core.Instance.SwitchScene(new GameChooseScene()); } });
+
+            counter.Players[0].Name = player1DropDown.SelectedValue;
+            this.InitPlayer(player1, player1Turn, switcher, player1DropDown.SelectedValue, field.Map);
             this.Restart(field, counter);
 
             UserInterface.Active = ui.UserInterface;
             helpMessageBox.Show();
         }
 
-        private MessageBox.MessageBoxHandle BuildHelpMessageBox(LocomotorECS.Entity player1, LocomotorECS.Entity player2)
+        private MessageBox.MessageBoxHandle BuildHelpMessageBox(LocomotorECS.Entity player1)
         {
             var images = new[]
             {
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.help1),
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.help2),
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.help3)
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpSingle1),
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpSingle2),
+                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpSingle3)
             };
 
             var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(656, 500));
@@ -255,7 +240,6 @@
             messageBox.OnDone = (b) =>
             {
                 player1.Enabled = true;
-                player2.Enabled = true;
             };
 
             messageBox.OnShow = (b) =>
@@ -263,21 +247,18 @@
                 currentImage = 0;
                 image.Texture = images[currentImage];
                 player1.Enabled = false;
-                player2.Enabled = false;
             };
 
             return messageBox;
         }
 
         private void InitPlayer(
-            int playerId,
             LocomotorECS.Entity player,
             TurnMadeComponent playerTurn,
+            PlayerSwitcherComponent switcher,
             string selectedValue,
             int[,] fieldMap)
         {
-            var pos = (playerId == 0) ? 0 : MapSize - 1;
-
             player.RemoveComponent<AIComponent>();
             player.RemoveComponent<InputMouseComponent>();
             player.RemoveComponent<InputTouchComponent>();
@@ -288,13 +269,13 @@
                     player.AddComponent<InputTouchComponent>();
                     break;
                 case "Easy":
-                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new RandomFloodItAI(playerTurn, pos, pos));
+                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new RandomFloodItAI(playerTurn, switcher));
                     break;
                 case "Med.":
-                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new LineFloodItAI(playerTurn, pos, pos));
+                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new LineFloodItAI(playerTurn, switcher));
                     break;
                 case "Hard":
-                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new GreedyFloodItAI(playerTurn, pos, pos));
+                    player.AddComponent<AIComponent>().AIBot = new StateMachine<int[,]>(fieldMap, new GreedyFloodItAI(playerTurn, switcher));
                     break;
             }
         }
@@ -304,23 +285,26 @@
             for (var x = 0; x < field.Map.GetLength(0); x++)
             for (var y = 0; y < field.Map.GetLength(1); y++)
             {
-                field.Map[x, y] = Random.NextInt(ColorsCount);
+                field.Map[x, y] = Random.NextInt(SharedData.ColorsCount);
             }
 
             counter.GameOver = false;
-            counter.Player1Size = 1;
-            counter.Player2Size = 1;
+
+            for (int i = 0; i < counter.Players.Count; i++)
+            {
+                counter.Players[i].Size = 1;
+            }
         }
 
         public static IEnumerator GetEnumerator(ContentManager content)
         {
             content.Load<Texture2D>(ContentPaths.moon);
             yield return 0;
-            content.Load<Texture2D>(ContentPaths.help1);
+            content.Load<Texture2D>(ContentPaths.helpSingle1);
             yield return 0;
-            content.Load<Texture2D>(ContentPaths.help2);
+            content.Load<Texture2D>(ContentPaths.helpSingle2);
             yield return 0;
-            content.Load<Texture2D>(ContentPaths.help3);
+            content.Load<Texture2D>(ContentPaths.helpSingle3);
             yield return 0;
         }
     }

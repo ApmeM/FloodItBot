@@ -1,13 +1,13 @@
 ﻿namespace MyONez.Samples.Base.Components
 {
+    using System.Collections.Generic;
+
     using LocomotorECS;
 
     public class PlayerSwitcherComponent : Component
     {
-        public TurnMadeComponent Player2 { get; set; }
+        public List<TurnMadeComponent> Players { get; set; }
 
-        public TurnMadeComponent Player1 { get; set; }
-
-        public int Player { get; set; }
+        public int CurrentPlayer { get; set; }
     }
 }

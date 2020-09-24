@@ -1,15 +1,24 @@
 ﻿namespace MyONez.Samples.Base.Components
 {
+    using System.Collections.Generic;
+
     using LocomotorECS;
 
     public class CounterComponent : Component
     {
-        public int Player1Size;
-        public int Player2Size;
-        public int Player1Wins;
-        public int Player2Wins;
+        public class PlayerData
+        {
+            public int Size;
+
+            public int Wins;
+
+            public string Name;
+        }
+
+        public List<PlayerData> Players = new List<PlayerData>();
+
+        public int GamesPlayed;
         public bool GameOver;
-        public string Player1Name;
-        public string Player2Name;
+        public int TurnsMade;
     }
 }

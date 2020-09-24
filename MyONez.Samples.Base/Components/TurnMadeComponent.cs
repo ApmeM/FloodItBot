@@ -4,7 +4,8 @@
 
     public class TurnMadeComponent : Component
     {
-        public int Player;
+        public int PlayerX;
+        public int PlayerY;
         public int Color;
         public bool TurnMade;
     }

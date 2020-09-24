@@ -29,12 +29,12 @@ namespace MyONez.Samples.Base
         protected override void Initialize()
         {
             base.Initialize();
-            Instance.SwitchScene(new LoadingScene<BasicScene>(new List<LoadingData>
+            Instance.SwitchScene(new LoadingScene<GameChooseScene>(new List<LoadingData>
             {
                 new LoadingData
                 {
                     Count = 4,
-                    Enumerator = BasicScene.GetEnumerator(this.Content)
+                    Enumerator = MultiplayerScene.GetEnumerator(this.Content)
                 },
                 new LoadingData
                 {
