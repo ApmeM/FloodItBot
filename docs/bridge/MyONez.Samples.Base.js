@@ -170,6 +170,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
         f1: function (_o1) {
             var $t;
             _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 4, $t.Enumerator = MyONez.Samples.Base.Screens.MultiplayerScene.GetEnumerator(this.Content), $t));
+            _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 4, $t.Enumerator = MyONez.Samples.Base.Screens.SingleplayerScene.GetEnumerator(this.Content), $t));
             _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 47, $t.Enumerator = GeonBit.UI.Utils.GeonBitUIResources.GetEnumerator(this.Content, "hd"), $t));
             return _o1;
         }
@@ -638,7 +639,7 @@ Bridge.assembly("MyONez.Samples.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(MyONez.Samples.Base.Systems.CounterToTextUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
                 this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
 
-                var moonTex = this.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
+                var moonTex = MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, MyONez.Samples.Base.ContentPaths.moon);
 
                 var common = this.CreateEntity("Common");
                 common.AddComponent$1(MyONez.ECS.Components.CameraShakeComponent, new MyONez.ECS.Components.CameraShakeComponent(this.Camera));

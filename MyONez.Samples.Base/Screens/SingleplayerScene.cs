@@ -65,7 +65,7 @@
             this.AddEntitySystemExecutionOrder<CounterToTextUpdateSystem, TextUIUpdateSystem>();
             this.AddEntitySystemExecutionOrder<UIUpdateSystem, TextUIUpdateSystem>();
 
-            var moonTex = this.Content.Load<Texture2D>(ContentPaths.moon);
+            var moonTex = Core.Instance.Content.Load<Texture2D>(ContentPaths.moon);
 
             var common = this.CreateEntity("Common");
             common.AddComponent(new CameraShakeComponent(this.Camera));
