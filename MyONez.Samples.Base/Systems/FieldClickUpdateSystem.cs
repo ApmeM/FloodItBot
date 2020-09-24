@@ -11,7 +11,6 @@
     using MyONez.ECS;
     using MyONez.ECS.Components;
     using MyONez.Samples.Base.Components;
-    using MyONez.Samples.Base.Screens;
 
     public class FieldClickUpdateSystem : EntityProcessingSystem
     {
@@ -44,16 +43,23 @@
 
             var fieldEntity = this.scene.FindEntity("Field");
             var field = fieldEntity.GetComponent<FieldComponent>();
-            if (this.TryMakeTurn(field.Map, fieldEntity, cursorPosition, turn))
+            var switcher = fieldEntity.GetComponent<PlayerSwitcherComponent>();
+
+            if (this.TryMakeTurn(field.Map, switcher, fieldEntity, cursorPosition, turn))
             {
                 return;
             }
 
             fieldEntity = this.scene.FindEntity("ColorSelector");
-            this.TryMakeTurn(field.Map, fieldEntity, cursorPosition, turn);
+            this.TryMakeTurn(field.Map, switcher, fieldEntity, cursorPosition, turn);
         }
 
-        private bool TryMakeTurn(int[,] fieldMap, Entity fieldEntity, Vector2 cursorPosition, TurnMadeComponent turn)
+        private bool TryMakeTurn(
+            int[,] fieldMap,
+            PlayerSwitcherComponent switcher,
+            Entity fieldEntity,
+            Vector2 cursorPosition,
+            TurnMadeComponent turn)
         {
             var position = fieldEntity.GetComponent<PositionComponent>();
             var field = fieldEntity.GetComponent<FieldComponent>();
@@ -68,13 +74,17 @@
                 return false;
             }
 
-            if (fieldMap[0, 0] == map[x, y] || fieldMap[fieldMap.GetLength(0) - 1, fieldMap.GetLength(1) - 1] == map[x, y] || map[x, y] == -1)
+            for (var index = 0; index < switcher.Players.Count; index++)
             {
-                var common = this.scene.FindEntity("Common");
-                common.GetComponent<CameraShakeComponent>().Shake();
-                return true;
+                var otherTurns = switcher.Players[index];
+                if (map[x, y] == field.Map[otherTurns.PlayerX, otherTurns.PlayerY])
+                {
+                    var common = this.scene.FindEntity("Common");
+                    common.GetComponent<CameraShakeComponent>().Shake();
+                    return true;
+                }
             }
-
+            
             turn.Color = map[x, y];
             turn.TurnMade = true;
             return true;

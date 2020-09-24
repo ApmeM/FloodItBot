@@ -8,14 +8,14 @@
 
     using Microsoft.Xna.Framework;
 
+    using MyONez.ECS;
     using MyONez.Samples.Base.Components;
-    using MyONez.Samples.Base.Screens;
 
     public class ApplyTurnUpdateSystem : EntityProcessingSystem
     {
-        private readonly BasicScene scene;
+        private readonly Scene scene;
 
-        public ApplyTurnUpdateSystem(BasicScene scene)
+        public ApplyTurnUpdateSystem(Scene scene)
             : base(new Matcher().All(typeof(FieldComponent), typeof(TurnMadeComponent)))
         {
             this.scene = scene;
@@ -24,29 +24,26 @@
         protected override void DoAction(Entity entity, TimeSpan gameTime)
         {
             base.DoAction(entity, gameTime);
-            var map = entity.GetComponent<FieldComponent>();
+            var field = entity.GetComponent<FieldComponent>();
             var turn = entity.GetComponent<TurnMadeComponent>();
-
+            var switcher = entity.GetComponent<PlayerSwitcherComponent>();
             var color = turn.Color;
 
-            if (color == map.Map[0, 0] || color == map.Map[map.Map.GetLength(0) - 1, map.Map.GetLength(1) - 1])
+            for (var index = 0; index < switcher.Players.Count; index++)
             {
-                return;
+                var otherTurns = switcher.Players[index];
+                if (color == field.Map[otherTurns.PlayerX, otherTurns.PlayerY])
+                {
+                    return;
+                }
             }
 
             var counterEntity = this.scene.FindEntity("Counter");
             var counter = counterEntity.GetComponent<CounterComponent>();
 
-            if (turn.Player == 0)
-            {
-                this.FloodIt(map.Map, color, 0, 0);
-                counter.Player1Size = this.Calc(map.Map, 0, 0);
-            }
-            else
-            {
-                this.FloodIt(map.Map, color, map.Map.GetLength(0) - 1, map.Map.GetLength(1) - 1);
-                counter.Player2Size = this.Calc(map.Map, map.Map.GetLength(0) - 1, map.Map.GetLength(1) - 1);
-            }
+            this.FloodIt(field.Map, color, turn.PlayerX, turn.PlayerY);
+            counter.Players[switcher.CurrentPlayer].Size = this.Calc(field.Map, turn.PlayerX, turn.PlayerY);
+            counter.TurnsMade++;
         }
 
         private void FloodIt(int[,] map, int floodColor, int x, int y)

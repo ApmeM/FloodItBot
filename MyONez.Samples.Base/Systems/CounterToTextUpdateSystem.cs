@@ -22,11 +22,23 @@
             var text = entity.GetComponent<TextComponent>();
             var counter = entity.GetComponent<CounterComponent>();
 
-            text.Text = $@"
-Statistic: 
-     | {counter.Player1Name, 5} | {counter.Player2Name, 5}
-Size | {counter.Player1Size, 5} | {counter.Player2Size, 5}
-Wins | {counter.Player1Wins, 5} | {counter.Player2Wins, 5}";
+            var name = "     ";
+            var size = "Size ";
+            var wins = "Wins ";
+            var rate = "Rate ";
+            for (var i = 0; i < counter.Players.Count; i++)
+            {
+                name += $"| {counter.Players[i].Name,5} ";
+                size += $"| {counter.Players[i].Size,5} ";
+                wins += $"| {counter.Players[i].Wins,5} ";
+                rate += $"| {(counter.GamesPlayed == 0 ? 0 : counter.Players[i].Wins * 100 / counter.GamesPlayed),4}% ";
+            }
+
+            text.Text = $@"Statistic: 
+{name}
+{size}
+{wins}
+{rate}";
         }
     }
 }

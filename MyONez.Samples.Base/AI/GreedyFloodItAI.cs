@@ -8,13 +8,10 @@
     using MyONez.Samples.Base.Components;
     using MyONez.Samples.Base.Screens;
 
-    /// <summary>
-    /// Statistic 90%
-    /// </summary>
     public class GreedyFloodItAI : BaseFloodItAI
     {
-        public GreedyFloodItAI(TurnMadeComponent turn, int startX, int startY)
-            : base(turn, startX, startY)
+        public GreedyFloodItAI(TurnMadeComponent turn, PlayerSwitcherComponent switcher)
+            : base(turn, switcher)
         {
         }
 
@@ -25,10 +22,9 @@
             var maxValue = 0;
             var maxColor = 0;
 
-            for (var i = 0; i < BasicScene.ColorsCount; i++)
+            for (var i = 0; i < SharedData.ColorsCount; i++)
             {
-                if (this.Context[0, 0] == i
-                    || this.Context[this.Context.GetLength(0) - 1, this.Context.GetLength(1) - 1] == i)
+                if (!IsColorPossible(i))
                 {
                     continue;
                 }

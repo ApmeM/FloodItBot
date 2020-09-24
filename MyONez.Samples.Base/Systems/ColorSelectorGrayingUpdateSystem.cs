@@ -4,14 +4,14 @@
 
     using LocomotorECS;
 
+    using MyONez.ECS;
     using MyONez.Samples.Base.Components;
-    using MyONez.Samples.Base.Screens;
 
     public class ColorSelectorGrayingUpdateSystem : EntitySystem
     {
-        private readonly BasicScene scene;
+        private readonly Scene scene;
 
-        public ColorSelectorGrayingUpdateSystem(BasicScene scene)
+        public ColorSelectorGrayingUpdateSystem(Scene scene)
         {
             this.scene = scene;
         }
@@ -24,14 +24,17 @@
 
             var field = this.scene.FindEntity("Field");
             var fieldMap = field.GetComponent<FieldComponent>().Map;
+            var switcher = field.GetComponent<PlayerSwitcherComponent>();
 
             for (var i = 0; i < colorSelectorMap.GetLength(1); i++)
             {
                 colorSelectorMap[0, i] = i;
             }
 
-            colorSelectorMap[0, fieldMap[0, 0]] = -1;
-            colorSelectorMap[0, fieldMap[fieldMap.GetLength(0) - 1, fieldMap.GetLength(1) - 1]] = -1;
+            for (var index = 0; index < switcher.Players.Count; index++)
+            {
+                colorSelectorMap[0, fieldMap[switcher.Players[index].PlayerX, switcher.Players[index].PlayerY]] = -1;
+            }
         }
     }
 }
