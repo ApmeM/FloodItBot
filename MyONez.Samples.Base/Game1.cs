@@ -38,6 +38,11 @@ namespace MyONez.Samples.Base
                 },
                 new LoadingData
                 {
+                    Count = 4,
+                    Enumerator = SingleplayerScene.GetEnumerator(this.Content)
+                },
+                new LoadingData
+                {
                     Count = 47,
                     Enumerator = GeonBitUIResources.GetEnumerator(this.Content, "hd")
                 },
