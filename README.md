@@ -18,7 +18,7 @@ This is also a game for coders to build best possible AI.
 If you want to build a bot that will rule the world:
 
 - Clone this repository
-- Add new file to MyONez.Samples.Base/AI 
+- Add new file to FloodItBot.Base/AI 
 - Code... (See API section)
 - Create pull request
 
