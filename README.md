@@ -39,5 +39,6 @@ Credits
 Demo
 ==========
 - Web demo at https://apmem.github.io/FloodItBot/
+- Desktop and Android demo at https://github.com/ApmeM/FloodItBot/releases
 
 If you want to build your own game not related to flood it but with the same functionality please refer to https://github.io/ApmeM/MyONez/
