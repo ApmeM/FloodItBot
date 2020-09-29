@@ -115,8 +115,6 @@
             ui.UserInterface.ShowCursor = false;
             var panel = ui.UserInterface.AddEntity(new Panel(new Vector2(250, 250), PanelSkin.None, Anchor.CenterLeft));
 
-            var helpMessageBox = BuildHelpMessageBox(player1, player2);
-
             var player1Label = new Label("Player 1", Anchor.TopLeft, null, new Vector2(0, 60));
             var player1DropDown = new DropDown(new Vector2(250, -1), Anchor.TopLeft, new Vector2(0, 90));
             player1DropDown.AddItem("User");
@@ -186,21 +184,6 @@
             };
 
             panel.AddChild(
-                new Button("Help")
-                {
-                    OnClick = (b) =>
-                    {
-                        helpMessageBox.Show();
-                    }
-                });
-
-            panel.AddChild(
-                new Button("Restart")
-                {
-                    OnClick = (b) => { this.Restart(field, counter); }
-                });
-
-            panel.AddChild(
                 new Button("Settings")
                 {
                     OnClick = (b) =>
@@ -221,57 +204,6 @@
             this.Restart(field, counter);
 
             UserInterface.Active = ui.UserInterface;
-            helpMessageBox.Show();
-        }
-
-        private MessageBox.MessageBoxHandle BuildHelpMessageBox(LocomotorECS.Entity player1, LocomotorECS.Entity player2)
-        {
-            var images = new[]
-            {
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpMulti1),
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpMulti2),
-                Core.Instance.Content.Load<Texture2D>(ContentPaths.helpMulti3)
-            };
-
-            var image = new Image(images[0], anchor: Anchor.TopCenter, size: new Vector2(656, 500));
-            var button = new Button("next ->", anchor: Anchor.BottomCenter, size: new Vector2(300, 50));
-
-            var messageBox = MessageBox.BuildMessageBox(
-                "",
-                "",
-                new MessageBox.MsgBoxOption[0],
-                new Entity[] { image, button },
-                new Vector2(710, 600));
-
-            var currentImage = 0;
-            button.OnClick = image.OnClick = (b) =>
-            {
-                if (currentImage + 1 == images.Length)
-                {
-                    messageBox.Close();
-                    return;
-                }
-
-                currentImage++;
-                image.Texture = images[currentImage];
-                
-            };
-
-            messageBox.OnDone = (b) =>
-            {
-                player1.Enabled = true;
-                player2.Enabled = true;
-            };
-
-            messageBox.OnShow = (b) =>
-            {
-                currentImage = 0;
-                image.Texture = images[currentImage];
-                player1.Enabled = false;
-                player2.Enabled = false;
-            };
-
-            return messageBox;
         }
 
         private void InitPlayer(
@@ -321,12 +253,6 @@
         public static IEnumerator GetEnumerator(ContentManager content)
         {
             content.Load<Texture2D>(ContentPaths.moon);
-            yield return 0;
-            content.Load<Texture2D>(ContentPaths.helpMulti1);
-            yield return 0;
-            content.Load<Texture2D>(ContentPaths.helpMulti2);
-            yield return 0;
-            content.Load<Texture2D>(ContentPaths.helpMulti3);
             yield return 0;
         }
     }
