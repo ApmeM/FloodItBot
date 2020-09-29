@@ -3163,7 +3163,8 @@ Bridge.assembly("MyONez", function ($asm, globals) {
              * @return  {LocomotorECS.Entity}
              */
             CreateEntity: function (name) {
-                var entity = new LocomotorECS.Entity.$ctor1(name);
+                if (name === void 0) { name = null; }
+                var entity = new LocomotorECS.Entity(name);
                 return this.AddEntity(entity);
             },
             /**
@@ -3219,19 +3220,6 @@ Bridge.assembly("MyONez", function ($asm, globals) {
              */
             FindEntitiesWithTag: function (tag) {
                 return this.entities.FindEntitiesByTag(tag);
-            },
-            /**
-             * returns all entities of Type T
-             *
-             * @instance
-             * @public
-             * @this MyONez.ECS.Scene
-             * @memberof MyONez.ECS.Scene
-             * @param   {Function}                             T    The 1st type parameter.
-             * @return  {System.Collections.Generic.List$1}         The of type.
-             */
-            EntitiesOfType: function (T) {
-                return this.entities.FindEntitiesByType(T);
             },
             AddEntitySystem: function (processor) {
                 this.entitySystems.Add(processor);

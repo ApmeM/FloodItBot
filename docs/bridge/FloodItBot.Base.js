@@ -113,23 +113,11 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
         statics: {
             fields: {
                 content: null,
-                helpMulti1: null,
-                helpMulti2: null,
-                helpMulti3: null,
-                helpSingle1: null,
-                helpSingle2: null,
-                helpSingle3: null,
                 moon: null
             },
             ctors: {
                 init: function () {
                     this.content = "Content";
-                    this.helpMulti1 = "helpMulti1";
-                    this.helpMulti2 = "helpMulti2";
-                    this.helpMulti3 = "helpMulti3";
-                    this.helpSingle1 = "helpSingle1";
-                    this.helpSingle2 = "helpSingle2";
-                    this.helpSingle3 = "helpSingle3";
                     this.moon = "moon";
                 }
             }
@@ -242,24 +230,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                                             return true;
                                     }
                                     case 1: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti1);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 2;
-                                            return true;
-                                    }
-                                    case 2: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti2);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 3;
-                                            return true;
-                                    }
-                                    case 3: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti3);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 4;
-                                            return true;
-                                    }
-                                    case 4: {
 
                                     }
                                     default: {
@@ -362,8 +332,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 ui.UserInterface.ShowCursor = false;
                 var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
 
-                var helpMessageBox = this.BuildHelpMessageBox(player1, player2);
-
                 var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
                 var player1DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
                 player1DropDown.AddItem("User");
@@ -422,14 +390,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                     this.Restart(field, counter);
                 });
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Help"), $t.OnClick = function (b) {
-                    helpMessageBox.Show();
-                }, $t));
-
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Restart"), $t.OnClick = Bridge.fn.bind(this, function (b) {
-                    this.Restart(field, counter);
-                }), $t));
-
                 panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
                     settingsMessageBox.Show();
                     player1.Enabled = false;
@@ -445,44 +405,9 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.Restart(field, counter);
 
                 GeonBit.UI.UserInterface.Active = ui.UserInterface;
-                helpMessageBox.Show();
             }
         },
         methods: {
-            BuildHelpMessageBox: function (player1, player2) {
-                var images = System.Array.init([MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti1), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti2), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpMulti3)], Microsoft.Xna.Framework.Graphics.Texture2D);
-
-                var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(656, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
-                var button = new GeonBit.UI.Entities.Button.$ctor1("next ->", 0, GeonBit.UI.Entities.Anchor.BottomCenter, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 50), void 0);
-
-                var messageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox("", "", System.Array.init(0, null, GeonBit.UI.Utils.MessageBox.MsgBoxOption), System.Array.init([image, button], GeonBit.UI.Entities.Entity), new Microsoft.Xna.Framework.Vector2.$ctor2(710, 600));
-
-                var currentImage = 0;
-                button.OnClick = (image.OnClick = function (b) {
-                    if (((currentImage + 1) | 0) === images.length) {
-                        messageBox.Close();
-                        return;
-                    }
-
-                    currentImage = (currentImage + 1) | 0;
-                    image.Texture = images[System.Array.index(currentImage, images)];
-
-                });
-
-                messageBox.OnDone = function (b) {
-                    player1.Enabled = true;
-                    player2.Enabled = true;
-                };
-
-                messageBox.OnShow = function (b) {
-                    currentImage = 0;
-                    image.Texture = images[System.Array.index(currentImage, images)];
-                    player1.Enabled = false;
-                    player2.Enabled = false;
-                };
-
-                return messageBox;
-            },
             InitPlayer: function (player, playerTurn, switcher, selectedValue, fieldMap) {
                 player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);
@@ -570,24 +495,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                                             return true;
                                     }
                                     case 1: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle1);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 2;
-                                            return true;
-                                    }
-                                    case 2: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle2);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 3;
-                                            return true;
-                                    }
-                                    case 3: {
-                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle3);
-                                            $enumerator.current = Bridge.box(0, System.Int32);
-                                            $step = 4;
-                                            return true;
-                                    }
-                                    case 4: {
 
                                     }
                                     default: {
@@ -685,8 +592,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 ui.UserInterface.ShowCursor = false;
                 var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
 
-                var helpMessageBox = this.BuildHelpMessageBox(player1);
-
                 var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
                 var player1DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
                 player1DropDown.AddItem("User");
@@ -732,14 +637,6 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                     this.Restart(field, counter);
                 });
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Help"), $t.OnClick = function (b) {
-                    helpMessageBox.Show();
-                }, $t));
-
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Restart"), $t.OnClick = Bridge.fn.bind(this, function (b) {
-                    this.Restart(field, counter);
-                }), $t));
-
                 panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
                     settingsMessageBox.Show();
                     player1.Enabled = false;
@@ -752,42 +649,9 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.Restart(field, counter);
 
                 GeonBit.UI.UserInterface.Active = ui.UserInterface;
-                helpMessageBox.Show();
             }
         },
         methods: {
-            BuildHelpMessageBox: function (player1) {
-                var images = System.Array.init([MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle1), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle2), MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.helpSingle3)], Microsoft.Xna.Framework.Graphics.Texture2D);
-
-                var image = new GeonBit.UI.Entities.Image.$ctor1(images[System.Array.index(0, images)], new Microsoft.Xna.Framework.Vector2.$ctor2(656, 500), 0, GeonBit.UI.Entities.Anchor.TopCenter, void 0);
-                var button = new GeonBit.UI.Entities.Button.$ctor1("next ->", 0, GeonBit.UI.Entities.Anchor.BottomCenter, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 50), void 0);
-
-                var messageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox("", "", System.Array.init(0, null, GeonBit.UI.Utils.MessageBox.MsgBoxOption), System.Array.init([image, button], GeonBit.UI.Entities.Entity), new Microsoft.Xna.Framework.Vector2.$ctor2(710, 600));
-
-                var currentImage = 0;
-                button.OnClick = (image.OnClick = function (b) {
-                    if (((currentImage + 1) | 0) === images.length) {
-                        messageBox.Close();
-                        return;
-                    }
-
-                    currentImage = (currentImage + 1) | 0;
-                    image.Texture = images[System.Array.index(currentImage, images)];
-
-                });
-
-                messageBox.OnDone = function (b) {
-                    player1.Enabled = true;
-                };
-
-                messageBox.OnShow = function (b) {
-                    currentImage = 0;
-                    image.Texture = images[System.Array.index(currentImage, images)];
-                    player1.Enabled = false;
-                };
-
-                return messageBox;
-            },
             InitPlayer: function (player, playerTurn, switcher, selectedValue, fieldMap) {
                 player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);

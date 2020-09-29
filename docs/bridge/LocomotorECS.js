@@ -287,13 +287,12 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
                 this.enabled = true;
                 this.Cache = new LocomotorECS.Entity.CacheData();
             },
-            ctor: function () {
+            ctor: function (name) {
+                if (name === void 0) { name = null; }
+
                 this.$initialize();
-                this.Components = new LocomotorECS.ComponentList(this);
-            },
-            $ctor1: function (name) {
-                LocomotorECS.Entity.ctor.call(this);
                 this.Name = name;
+                this.Components = new LocomotorECS.ComponentList(this);
             }
         },
         methods: {
@@ -360,7 +359,8 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
             entities: null,
             entitiesToAdd: null,
             entitiesToRemove: null,
-            entityTagsDict: null
+            entityTagsDict: null,
+            entityNamesDict: null
         },
         events: {
             EntityRemoved: null,
@@ -373,15 +373,22 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
                 this.entitiesToAdd = new (System.Collections.Generic.HashSet$1(LocomotorECS.Entity)).ctor();
                 this.entitiesToRemove = new (System.Collections.Generic.HashSet$1(LocomotorECS.Entity)).ctor();
                 this.entityTagsDict = new (System.Collections.Generic.Dictionary$2(System.Int32,System.Collections.Generic.List$1(LocomotorECS.Entity)))();
+                this.entityNamesDict = new (System.Collections.Generic.Dictionary$2(System.String,LocomotorECS.Entity))();
             }
         },
         methods: {
             Add: function (entity) {
                 this.entitiesToAdd.add(entity);
+                if (entity.Name != null) {
+                    this.entityNamesDict.add(entity.Name, entity);
+                }
+
+                this.AddToTagList(entity);
             },
             Remove: function (entity) {
                 this.entitiesToAdd.remove(entity);
                 this.entitiesToRemove.add(entity);
+                this.RemoveFromTagList(entity);
             },
             CommitChanges: function () {
                 var $t, $t1;
@@ -392,6 +399,9 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
                             var entity = $t.Current;
                             this.RemoveFromTagList(entity);
                             this.entities.remove(entity);
+                            if (entity.Name != null) {
+                                this.entityNamesDict.remove(entity.Name);
+                            }
                             entity.removeBeforeTagChanged(Bridge.fn.cacheBind(this, this.RemoveFromTagList));
                             entity.removeAfterTagChanged(Bridge.fn.cacheBind(this, this.AddToTagList));
                         }
@@ -435,28 +445,15 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
                 this.entitiesToAdd.clear();
             },
             FindEntityByName: function (name) {
-                var $t;
-                for (var i = 0; i < this.entities.Count; i = (i + 1) | 0) {
-                    if (Bridge.referenceEquals(this.entities.getItem(i).Name, name)) {
-                        return this.entities.getItem(i);
-                    }
+                if (name == null) {
+                    return null;
                 }
 
-                $t = Bridge.getEnumerator(this.entitiesToAdd);
-                try {
-                    while ($t.moveNext()) {
-                        var entity = $t.Current;
-                        if (Bridge.referenceEquals(entity.Name, name)) {
-                            return entity;
-                        }
-                    }
-                } finally {
-                    if (Bridge.is($t, System.IDisposable)) {
-                        $t.System$IDisposable$Dispose();
-                    }
+                if (!this.entityNamesDict.containsKey(name)) {
+                    return null;
                 }
 
-                return null;
+                return this.entityNamesDict.get(name);
             },
             FindEntitiesByTag: function (tag) {
                 var list = { };
@@ -467,38 +464,21 @@ Bridge.assembly("LocomotorECS", function ($asm, globals) {
 
                 return this.entityTagsDict.get(tag);
             },
-            FindEntitiesByType: function (T) {
-                var $t;
-                var list = new (System.Collections.Generic.List$1(LocomotorECS.Entity)).ctor();
-                for (var i = 0; i < this.entities.Count; i = (i + 1) | 0) {
-                    if (Bridge.is(this.entities.getItem(i), T)) {
-                        list.add(this.entities.getItem(i));
-                    }
-                }
-
-                $t = Bridge.getEnumerator(this.entitiesToAdd);
-                try {
-                    while ($t.moveNext()) {
-                        var entity = $t.Current;
-                        if (Bridge.is(entity, T)) {
-                            list.add(entity);
-                        }
-                    }
-                } finally {
-                    if (Bridge.is($t, System.IDisposable)) {
-                        $t.System$IDisposable$Dispose();
-                    }
-                }
-
-                return list;
-            },
             AddToTagList: function (entity) {
+                if (entity.Tag === 0) {
+                    return;
+                }
+
                 var list = this.FindEntitiesByTag(entity.Tag);
                 if (!list.contains(entity)) {
                     list.add(entity);
                 }
             },
             RemoveFromTagList: function (entity) {
+                if (entity.Tag === 0) {
+                    return;
+                }
+
                 var list = { };
                 if (this.entityTagsDict.tryGetValue(entity.Tag, list)) {
                     list.v.remove(entity);
