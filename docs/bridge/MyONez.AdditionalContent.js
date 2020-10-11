@@ -7,6 +7,30 @@
 Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
     "use strict";
 
+    Bridge.define("MyONez.AdditionalContent.BrainAI.Components.AIComponent", {
+        inherits: [LocomotorECS.Component],
+        props: {
+            AIBot: null
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.BrainAI.EntitySystems.AIUpdateSystem", {
+        inherits: [LocomotorECS.EntityProcessingSystem],
+        ctors: {
+            ctor: function () {
+                this.$initialize();
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.BrainAI.Components.AIComponent]));
+            }
+        },
+        methods: {
+            DoAction$1: function (entity, gameTime) {
+                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
+                var ai = entity.GetComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent);
+                ai.AIBot.BrainAI$AI$IAITurn$Tick();
+            }
+        }
+    });
+
     Bridge.define("MyONez.AdditionalContent.ContentPaths", {
         statics: {
             fields: {
@@ -1643,6 +1667,877 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
             ctor: function (effect) {
                 this.$initialize();
                 Microsoft.Xna.Framework.Graphics.Effect.ctor.call(this, effect);
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent", {
+        inherits: [LocomotorECS.Component],
+        props: {
+            Text: null,
+            Label: null
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent", {
+        inherits: [LocomotorECS.Component],
+        fields: {
+            GameTime: null,
+            MouseProvider: null
+        },
+        props: {
+            UserInterface: null
+        },
+        ctors: {
+            init: function () {
+                this.GameTime = new Microsoft.Xna.Framework.GameTime.ctor();
+                this.MouseProvider = new MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider();
+                this.UserInterface = new FaceUI.UserInterface();
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem", {
+        inherits: [LocomotorECS.EntityProcessingSystem],
+        ctors: {
+            ctor: function () {
+                this.$initialize();
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent]));
+            }
+        },
+        methods: {
+            DoAction$1: function (entity, gameTime) {
+                var $t, $t1, $t2, $t3;
+                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
+                var ui = entity.GetOrCreateComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent);
+                var text = entity.GetComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent);
+                var scale = ($t = (($t1 = entity.GetComponent(MyONez.ECS.Components.ScaleComponent)) != null ? $t1.Scale : null), $t != null ? $t : Microsoft.Xna.Framework.Vector2.One);
+                var color = ($t2 = (($t3 = entity.GetComponent(MyONez.ECS.Components.ColorComponent)) != null ? $t3.Color : null), $t2 != null ? $t2 : Microsoft.Xna.Framework.Color.White);
+
+                ui.UserInterface.ShowCursor = false;
+
+                if (text.Label == null) {
+                    text.Label = new FaceUI.Entities.Label.$ctor1(text.Text);
+                    ui.UserInterface.AddEntity(text.Label);
+                }
+
+                text.Label.FillColor = color.$clone();
+                text.Label.Text = text.Text;
+                text.Label.Scale = scale.X;
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem", {
+        inherits: [LocomotorECS.EntityProcessingSystem,MyONez.ECS.IScreenResolutionChangedListener],
+        fields: {
+            spriteBatchWrapper: null,
+            totalTime: null
+        },
+        alias: ["SceneBackBufferSizeChanged", "MyONez$ECS$IScreenResolutionChangedListener$SceneBackBufferSizeChanged"],
+        ctors: {
+            init: function () {
+                this.totalTime = new System.TimeSpan();
+                this.spriteBatchWrapper = new MyONez.AdditionalContent.FaceUI.Utils.MeshBatchWrapper();
+                this.totalTime = System.TimeSpan.zero;
+            },
+            ctor: function (content) {
+                this.$initialize();
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent]));
+                FaceUI.UserInterface.Initialize(content, FaceUI.BuiltinThemes.hd);
+            }
+        },
+        methods: {
+            DoAction$1: function (entity, gameTime) {
+                var $t, $t1;
+                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
+                var ui = entity.GetComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent);
+                var scale = ($t = (($t1 = entity.GetComponent(MyONez.ECS.Components.ScaleComponent)) != null ? $t1.Scale : null), $t != null ? $t : Microsoft.Xna.Framework.Vector2.One);
+                var mouse = entity.GetOrCreateComponent(MyONez.ECS.Components.InputMouseComponent);
+                var touch = entity.GetOrCreateComponent(MyONez.ECS.Components.InputTouchComponent);
+                var finalRender = entity.GetOrCreateComponent(MyONez.ECS.Components.FinalRenderComponent);
+
+                this.totalTime = System.TimeSpan.add(this.totalTime, gameTime);
+
+                FaceUI.UserInterface.Active = ui.UserInterface;
+                ui.UserInterface.MouseInputProvider = ui.MouseProvider;
+
+                ui.MouseProvider._oldMouseState = ui.MouseProvider._newMouseState.$clone();
+                if (touch.IsConnected) {
+                    if (System.Linq.Enumerable.from(touch.CurrentTouches).any()) {
+                        var touchPosition = touch.GetScaledPosition(touch.CurrentTouches.getItem(0).$clone().Position.$clone());
+                        ui.MouseProvider._newMouseState.X = touchPosition.X;
+                        ui.MouseProvider._newMouseState.Y = touchPosition.Y;
+                        ui.MouseProvider._newMouseState.LeftButton = Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+                    } else {
+                        ui.MouseProvider._newMouseState.X = ui.MouseProvider._oldMouseState.X;
+                        ui.MouseProvider._newMouseState.Y = ui.MouseProvider._oldMouseState.Y;
+                        ui.MouseProvider._newMouseState.LeftButton = Microsoft.Xna.Framework.Input.ButtonState.Released;
+                    }
+
+                    ui.MouseProvider._newMouseState.RightButton = Microsoft.Xna.Framework.Input.ButtonState.Released;
+                    ui.MouseProvider._newMouseState.MiddleButton = Microsoft.Xna.Framework.Input.ButtonState.Released;
+                    ui.MouseProvider._newMouseState.ScrollWheelValue = 0;
+                } else {
+                    ui.MouseProvider._newMouseState.X = mouse.ScaledMousePosition.X;
+                    ui.MouseProvider._newMouseState.Y = mouse.ScaledMousePosition.Y;
+                    ui.MouseProvider._newMouseState.LeftButton = mouse.CurrentMouseState.LeftButton;
+                    ui.MouseProvider._newMouseState.RightButton = mouse.CurrentMouseState.RightButton;
+                    ui.MouseProvider._newMouseState.MiddleButton = mouse.CurrentMouseState.MiddleButton;
+                    ui.MouseProvider._newMouseState.ScrollWheelValue = mouse.CurrentMouseState.ScrollWheelValue;
+                }
+
+                ui.UserInterface.GlobalScale = scale.X;
+                ui.GameTime.TotalGameTime = this.totalTime;
+                ui.GameTime.ElapsedGameTime = gameTime;
+                ui.UserInterface.Update(ui.GameTime);
+                this.spriteBatchWrapper.MeshBatch = finalRender.Batch;
+                this.spriteBatchWrapper.MeshBatch.Clear();
+                ui.UserInterface.Draw(this.spriteBatchWrapper);
+            },
+            SceneBackBufferSizeChanged: function (realRenderTarget, sceneRenderTarget) {
+                Bridge.cast(this.spriteBatchWrapper.GraphicsDevice, MyONez.AdditionalContent.FaceUI.Utils.ScreenGraphicDeviceWrapper).ViewRectangle = sceneRenderTarget.$clone();
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources", {
+        statics: {
+            methods: {
+                GetEnumerator: function (content, theme) {
+                    var $step = 0,
+                        $jumpFromFinally,
+                        $returnValue,
+                        root,
+                        $t,
+                        cursor,
+                        cursorName,
+                        $t1,
+                        skin,
+                        skinName,
+                        $t2,
+                        skin1,
+                        skinName1,
+                        $t3,
+                        style,
+                        $t4,
+                        skin2,
+                        skinName2,
+                        $async_e;
+
+                    var $enumerator = new Bridge.GeneratorEnumerator(Bridge.fn.bind(this, function () {
+                        try {
+                            for (;;) {
+                                switch ($step) {
+                                    case 0: {
+                                        root = "FaceUI/themes/" + (theme || "") + "/";
+
+                                            content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/horizontal_line");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 1;
+                                            return true;
+                                    }
+                                    case 1: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/white_texture");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 2;
+                                            return true;
+                                    }
+                                    case 2: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/icons/background");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 3;
+                                            return true;
+                                    }
+                                    case 3: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/scrollbar");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 4;
+                                            return true;
+                                    }
+                                    case 4: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/scrollbar_mark");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 5;
+                                            return true;
+                                    }
+                                    case 5: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/arrow_down");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 6;
+                                            return true;
+                                    }
+                                    case 6: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/arrow_up");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 7;
+                                            return true;
+                                    }
+                                    case 7: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/progressbar");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 8;
+                                            return true;
+                                    }
+                                    case 8: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, (root || "") + "textures/progressbar_fill");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 9;
+                                            return true;
+                                    }
+                                    case 9: {
+                                        $t = Bridge.getEnumerator(System.Enum.getValues(FaceUI.CursorType));
+                                            try {
+                                                while ($t.moveNext()) {
+                                                    cursor = Bridge.cast($t.Current, FaceUI.CursorType);
+                                                    cursorName = System.Enum.getName(FaceUI.CursorType, Bridge.box(cursor, FaceUI.CursorType, System.Enum.toStringFn(FaceUI.CursorType))).toLowerCase();
+                                                    content.Load(FaceUI.DataTypes.CursorTextureData, (root || "") + "textures/cursor_" + (cursorName || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t, System.IDisposable)) {
+                                                    $t.System$IDisposable$Dispose();
+                                                }
+                                            }
+
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 10;
+                                            return true;
+                                    }
+                                    case 10: {
+                                        $t1 = Bridge.getEnumerator(System.Enum.getValues(FaceUI.Entities.PanelSkin));
+                                            try {
+                                                while ($t1.moveNext()) {
+                                                    skin = Bridge.cast($t1.Current, FaceUI.Entities.PanelSkin);
+                                                    if (skin === FaceUI.Entities.PanelSkin.None) {
+                                                        continue;
+                                                    }
+                                                    skinName = System.Enum.toString(FaceUI.Entities.PanelSkin, skin).toLowerCase();
+                                                    content.Load(FaceUI.DataTypes.TextureData, (root || "") + "textures/panel_" + (skinName || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t1, System.IDisposable)) {
+                                                    $t1.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 11;
+                                            return true;
+                                    }
+                                    case 11: {
+                                        content.Load(FaceUI.DataTypes.TextureData, (root || "") + "textures/scrollbar_md");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 12;
+                                            return true;
+                                    }
+                                    case 12: {
+                                        $t2 = Bridge.getEnumerator(System.Enum.getValues(FaceUI.Entities.SliderSkin));
+                                            try {
+                                                while ($t2.moveNext()) {
+                                                    skin1 = Bridge.cast($t2.Current, FaceUI.Entities.SliderSkin);
+                                                    skinName1 = System.Enum.toString(FaceUI.Entities.SliderSkin, skin1).toLowerCase();
+                                                    content.Load(FaceUI.DataTypes.TextureData, (root || "") + "textures/slider_" + (skinName1 || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t2, System.IDisposable)) {
+                                                    $t2.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 13;
+                                            return true;
+                                    }
+                                    case 13: {
+                                        $t3 = Bridge.getEnumerator(System.Enum.getValues(FaceUI.Entities.FontStyle));
+                                            try {
+                                                while ($t3.moveNext()) {
+                                                    style = Bridge.cast($t3.Current, FaceUI.Entities.FontStyle);
+                                                    content.Load(Microsoft.Xna.Framework.Graphics.SpriteFont, (root || "") + "fonts/" + (System.Enum.toString(FaceUI.Entities.FontStyle, style) || ""));
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t3, System.IDisposable)) {
+                                                    $t3.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 14;
+                                            return true;
+                                    }
+                                    case 14: {
+                                        $t4 = Bridge.getEnumerator(System.Enum.getValues(FaceUI.Entities.ButtonSkin));
+                                            try {
+                                                while ($t4.moveNext()) {
+                                                    skin2 = Bridge.cast($t4.Current, FaceUI.Entities.ButtonSkin);
+                                                    skinName2 = System.Enum.toString(FaceUI.Entities.ButtonSkin, skin2).toLowerCase();
+                                                    content.Load(FaceUI.DataTypes.TextureData, (root || "") + "textures/button_" + (skinName2 || "") + "_md");
+                                                }
+                                            } finally {
+                                                if (Bridge.is($t4, System.IDisposable)) {
+                                                    $t4.System$IDisposable$Dispose();
+                                                }
+                                            }
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 15;
+                                            return true;
+                                    }
+                                    case 15: {
+                                        content.Load(FaceUI.DataTypes.TextureData, (root || "") + "textures/progressbar_md");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 16;
+                                            return true;
+                                    }
+                                    case 16: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Effect, (root || "") + "effects/disabled");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 17;
+                                            return true;
+                                    }
+                                    case 17: {
+                                        content.Load(Microsoft.Xna.Framework.Graphics.Effect, (root || "") + "effects/silhouette");
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 18;
+                                            return true;
+                                    }
+                                    case 18: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Entity, "DefaultStyle"), "Entity", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 19;
+                                            return true;
+                                    }
+                                    case 19: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Paragraph, "DefaultStyle"), "Paragraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 20;
+                                            return true;
+                                    }
+                                    case 20: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Button, "DefaultStyle"), "Button", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 21;
+                                            return true;
+                                    }
+                                    case 21: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Button, "DefaultParagraphStyle"), "ButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 22;
+                                            return true;
+                                    }
+                                    case 22: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.CheckBox, "DefaultStyle"), "CheckBox", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 23;
+                                            return true;
+                                    }
+                                    case 23: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.CheckBox, "DefaultParagraphStyle"), "CheckBoxParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 24;
+                                            return true;
+                                    }
+                                    case 24: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.ColoredRectangle, "DefaultStyle"), "ColoredRectangle", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 25;
+                                            return true;
+                                    }
+                                    case 25: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.DropDown, "DefaultStyle"), "DropDown", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 26;
+                                            return true;
+                                    }
+                                    case 26: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.DropDown, "DefaultParagraphStyle"), "DropDownParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 27;
+                                            return true;
+                                    }
+                                    case 27: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.DropDown, "DefaultSelectedParagraphStyle"), "DropDownSelectedParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 28;
+                                            return true;
+                                    }
+                                    case 28: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Header, "DefaultStyle"), "Header", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 29;
+                                            return true;
+                                    }
+                                    case 29: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.HorizontalLine, "DefaultStyle"), "HorizontalLine", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 30;
+                                            return true;
+                                    }
+                                    case 30: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Icon, "DefaultStyle"), "Icon", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 31;
+                                            return true;
+                                    }
+                                    case 31: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Image, "DefaultStyle"), "Image", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 32;
+                                            return true;
+                                    }
+                                    case 32: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Label, "DefaultStyle"), "Label", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 33;
+                                            return true;
+                                    }
+                                    case 33: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Panel, "DefaultStyle"), "Panel", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 34;
+                                            return true;
+                                    }
+                                    case 34: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.ProgressBar, "DefaultStyle"), "ProgressBar", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 35;
+                                            return true;
+                                    }
+                                    case 35: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.ProgressBar, "DefaultFillStyle"), "ProgressBarFill", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 36;
+                                            return true;
+                                    }
+                                    case 36: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.RadioButton, "DefaultStyle"), "RadioButton", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 37;
+                                            return true;
+                                    }
+                                    case 37: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.RadioButton, "DefaultParagraphStyle"), "RadioButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 38;
+                                            return true;
+                                    }
+                                    case 38: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.SelectList, "DefaultStyle"), "SelectList", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 39;
+                                            return true;
+                                    }
+                                    case 39: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.SelectList, "DefaultParagraphStyle"), "SelectListParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 40;
+                                            return true;
+                                    }
+                                    case 40: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.Slider, "DefaultStyle"), "Slider", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 41;
+                                            return true;
+                                    }
+                                    case 41: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.TextInput, "DefaultStyle"), "TextInput", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 42;
+                                            return true;
+                                    }
+                                    case 42: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.TextInput, "DefaultParagraphStyle"), "TextInputParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 43;
+                                            return true;
+                                    }
+                                    case 43: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.TextInput, "DefaultPlaceholderStyle"), "TextInputPlaceholder", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 44;
+                                            return true;
+                                    }
+                                    case 44: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.VerticalScrollbar, "DefaultStyle"), "VerticalScrollbar", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 45;
+                                            return true;
+                                    }
+                                    case 45: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.PanelTabs, "DefaultButtonStyle"), "PanelTabsButton", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 46;
+                                            return true;
+                                    }
+                                    case 46: {
+                                        MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.LoadDefaultStyles(Bridge.ref(FaceUI.Entities.PanelTabs, "DefaultButtonParagraphStyle"), "PanelTabsButtonParagraph", root, content);
+                                            $enumerator.current = Bridge.box(0, System.Int32);
+                                            $step = 47;
+                                            return true;
+                                    }
+                                    case 47: {
+
+                                    }
+                                    default: {
+                                        return false;
+                                    }
+                                }
+                            }
+                        } catch($async_e1) {
+                            $async_e = System.Exception.create($async_e1);
+                            throw $async_e;
+                        }
+                    }));
+                    return $enumerator;
+                },
+                LoadDefaultStyles: function (sheet, entityName, themeRoot, content) {
+                    var stylesheetBase = (themeRoot || "") + "styles/" + (entityName || "");
+                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-Default");
+                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseHover");
+                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseDown");
+                }
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.Utils.MeshBatchWrapper", {
+        inherits: [FaceUI.Utils.ISpriteBatchWrapper],
+        fields: {
+            glyphsCache: null
+        },
+        props: {
+            MeshBatch: null,
+            GraphicsDevice: null
+        },
+        alias: [
+            "Begin", "FaceUI$Utils$ISpriteBatchWrapper$Begin",
+            "End", "FaceUI$Utils$ISpriteBatchWrapper$End",
+            "Draw", "FaceUI$Utils$ISpriteBatchWrapper$Draw",
+            "Draw$1", "FaceUI$Utils$ISpriteBatchWrapper$Draw$1",
+            "DrawString", "FaceUI$Utils$ISpriteBatchWrapper$DrawString",
+            "GraphicsDevice", "FaceUI$Utils$ISpriteBatchWrapper$GraphicsDevice"
+        ],
+        ctors: {
+            init: function () {
+                this.glyphsCache = new (System.Collections.Generic.Dictionary$2(Microsoft.Xna.Framework.Graphics.SpriteFont,System.Collections.Generic.Dictionary$2(System.Char,Microsoft.Xna.Framework.Graphics.SpriteFont.Glyph)))();
+                this.GraphicsDevice = new MyONez.AdditionalContent.FaceUI.Utils.ScreenGraphicDeviceWrapper();
+            }
+        },
+        methods: {
+            Begin: function (sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, transformMatrix) {
+                if (sortMode === void 0) { sortMode = 0; }
+                if (blendState === void 0) { blendState = null; }
+                if (samplerState === void 0) { samplerState = null; }
+                if (depthStencilState === void 0) { depthStencilState = null; }
+                if (rasterizerState === void 0) { rasterizerState = null; }
+                if (effect === void 0) { effect = null; }
+                if (transformMatrix === void 0) { transformMatrix = null; }
+            },
+            End: function () { },
+            Draw: function (texture, destRect, color) {
+                this.MeshBatch.Draw(texture, MyONez.Maths.RectangleF.op_Implicit$1(destRect.$clone()), MyONez.Maths.RectangleF.op_Implicit$1(texture.Bounds.$clone()), color.$clone());
+            },
+            Draw$1: function (texture, destRect, srcRect, color) {
+                this.MeshBatch.Draw(texture, MyONez.Maths.RectangleF.op_Implicit$1(destRect.$clone()), MyONez.Maths.RectangleF.op_Implicit$1(srcRect.$clone()), color.$clone());
+            },
+            DrawString: function (spriteFont, text, position, color, rotation, origin, scalef, effects, layerDepth) {
+                var scale = new Microsoft.Xna.Framework.Vector2.$ctor1(scalef);
+
+                var flipAdjustment = Microsoft.Xna.Framework.Vector2.Zero.$clone();
+
+                var flippedVert = (effects & Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipVertically) === Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipVertically;
+                var flippedHorz = (effects & Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally) === Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
+
+                if (flippedVert || flippedHorz) {
+                    var size = spriteFont.MeasureString(text);
+
+                    if (flippedHorz) {
+                        origin.X *= -1;
+                        flipAdjustment.X = -size.X;
+                    }
+
+                    if (flippedVert) {
+                        origin.Y *= -1;
+                        flipAdjustment.Y = spriteFont.LineSpacing - size.Y;
+                    }
+                }
+
+                var transformation = { v : Microsoft.Xna.Framework.Matrix.Identity.$clone() };
+                var cos = 0, sin = 0;
+                if (rotation === 0) {
+                    transformation.v.M11 = (flippedHorz ? -scale.X : scale.X);
+                    transformation.v.M22 = (flippedVert ? -scale.Y : scale.Y);
+                    transformation.v.M41 = ((flipAdjustment.X - origin.X) * transformation.v.M11) + position.X;
+                    transformation.v.M42 = ((flipAdjustment.Y - origin.Y) * transformation.v.M22) + position.Y;
+                } else {
+                    cos = Math.cos(rotation);
+                    sin = Math.sin(rotation);
+                    transformation.v.M11 = (flippedHorz ? -scale.X : scale.X) * cos;
+                    transformation.v.M12 = (flippedHorz ? -scale.X : scale.X) * sin;
+                    transformation.v.M21 = (flippedVert ? -scale.Y : scale.Y) * (-sin);
+                    transformation.v.M22 = (flippedVert ? -scale.Y : scale.Y) * cos;
+                    transformation.v.M41 = (((flipAdjustment.X - origin.X) * transformation.v.M11) + (flipAdjustment.Y - origin.Y) * transformation.v.M21) + position.X;
+                    transformation.v.M42 = (((flipAdjustment.X - origin.X) * transformation.v.M12) + (flipAdjustment.Y - origin.Y) * transformation.v.M22) + position.Y;
+                }
+
+                var offset = Microsoft.Xna.Framework.Vector2.Zero.$clone();
+                var firstGlyphOfLine = true;
+
+                if (!this.glyphsCache.containsKey(spriteFont)) {
+                    this.glyphsCache.set(spriteFont, spriteFont.GetGlyphs());
+                }
+
+                var pGlyphs = this.glyphsCache.get(spriteFont);
+
+                for (var i = 0; i < text.length; i = (i + 1) | 0) {
+                    var c = text.charCodeAt(i);
+
+                    if (c === 13) {
+                        continue;
+                    }
+
+                    if (c === 10) {
+                        offset.X = 0;
+                        offset.Y += spriteFont.LineSpacing;
+                        firstGlyphOfLine = true;
+                        continue;
+                    }
+
+                    var pCurrentGlyph = pGlyphs.get(c).$clone();
+
+                    // The first character on a line might have a negative left side bearing.
+                    // In this scenario, SpriteBatch/SpriteFont normally offset the text to the right,
+                    //  so that text does not hang off the left side of its rectangle.
+                    if (firstGlyphOfLine) {
+                        offset.X = Math.max(pCurrentGlyph.LeftSideBearing, 0);
+                        firstGlyphOfLine = false;
+                    } else {
+                        offset.X += spriteFont.Spacing + pCurrentGlyph.LeftSideBearing;
+                    }
+
+                    var p = { v : offset.$clone() };
+
+                    if (flippedHorz) {
+                        p.v.X += pCurrentGlyph.BoundsInTexture.Width;
+                    }
+                    p.v.X += pCurrentGlyph.Cropping.X;
+
+                    if (flippedVert) {
+                        p.v.Y += (pCurrentGlyph.BoundsInTexture.Height - spriteFont.LineSpacing) | 0;
+                    }
+                    p.v.Y += pCurrentGlyph.Cropping.Y;
+
+                    Microsoft.Xna.Framework.Vector2.Transform$2(p, transformation, p);
+
+                    //if ((effects & SpriteEffects.FlipVertically) != 0)
+                    //{
+                    //    var temp = _texCoordBR.Y;
+                    //    _texCoordBR.Y = _texCoordTL.Y;
+                    //    _texCoordTL.Y = temp;
+                    //}
+                    //if ((effects & SpriteEffects.FlipHorizontally) != 0)
+                    //{
+                    //    var temp = _texCoordBR.X;
+                    //    _texCoordBR.X = _texCoordTL.X;
+                    //    _texCoordTL.X = temp;
+                    //}
+
+                    this.Draw$1(spriteFont.Texture, MyONez.Maths.RectangleF.op_Implicit(new MyONez.Maths.RectangleF.$ctor2(p.v.X, p.v.Y, pCurrentGlyph.BoundsInTexture.Width * scale.X, pCurrentGlyph.BoundsInTexture.Height * scale.Y)), MyONez.Maths.RectangleF.op_Implicit(new MyONez.Maths.RectangleF.$ctor2(pCurrentGlyph.BoundsInTexture.X, pCurrentGlyph.BoundsInTexture.Y, (((((pCurrentGlyph.BoundsInTexture.X + pCurrentGlyph.BoundsInTexture.Width) | 0)) - pCurrentGlyph.BoundsInTexture.X) | 0), (((((pCurrentGlyph.BoundsInTexture.Y + pCurrentGlyph.BoundsInTexture.Height) | 0)) - pCurrentGlyph.BoundsInTexture.Y) | 0))), color.$clone());
+
+                    offset.X += pCurrentGlyph.Width + pCurrentGlyph.RightSideBearing;
+                }
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider", {
+        inherits: [FaceUI.IMouseInput],
+        fields: {
+            _newMouseState: null,
+            _oldMouseState: null,
+            _newMousePos: null,
+            _oldMousePos: null
+        },
+        props: {
+            MouseWheel: 0,
+            MouseWheelChange: 0,
+            MousePosition: {
+                get: function () {
+                    return this._newMousePos.$clone();
+                }
+            },
+            MousePositionDiff: {
+                get: function () {
+                    return Microsoft.Xna.Framework.Vector2.op_Subtraction(this._newMousePos.$clone(), this._oldMousePos.$clone());
+                }
+            }
+        },
+        alias: [
+            "MouseWheel", "FaceUI$IMouseInput$MouseWheel",
+            "MouseWheelChange", "FaceUI$IMouseInput$MouseWheelChange",
+            "Update", "FaceUI$IMouseInput$Update",
+            "UpdateMousePosition", "FaceUI$IMouseInput$UpdateMousePosition",
+            "TransformMousePosition", "FaceUI$IMouseInput$TransformMousePosition",
+            "MousePosition", "FaceUI$IMouseInput$MousePosition",
+            "MousePositionDiff", "FaceUI$IMouseInput$MousePositionDiff",
+            "MouseButtonDown", "FaceUI$IMouseInput$MouseButtonDown",
+            "AnyMouseButtonDown", "FaceUI$IMouseInput$AnyMouseButtonDown",
+            "MouseButtonReleased", "FaceUI$IMouseInput$MouseButtonReleased",
+            "AnyMouseButtonReleased", "FaceUI$IMouseInput$AnyMouseButtonReleased",
+            "MouseButtonPressed", "FaceUI$IMouseInput$MouseButtonPressed",
+            "AnyMouseButtonPressed", "FaceUI$IMouseInput$AnyMouseButtonPressed",
+            "MouseButtonClick", "FaceUI$IMouseInput$MouseButtonClick",
+            "AnyMouseButtonClicked", "FaceUI$IMouseInput$AnyMouseButtonClicked"
+        ],
+        ctors: {
+            init: function () {
+                this._newMouseState = new MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State();
+                this._oldMouseState = new MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State();
+                this._newMousePos = new Microsoft.Xna.Framework.Vector2();
+                this._oldMousePos = new Microsoft.Xna.Framework.Vector2();
+            }
+        },
+        methods: {
+            Update: function (gameTime) {
+                // get mouse position
+                this._oldMousePos = this._newMousePos.$clone();
+                this._newMousePos = new Microsoft.Xna.Framework.Vector2.$ctor2(this._newMouseState.X, this._newMouseState.Y);
+
+                // get mouse wheel state
+                var prevMouseWheel = this.MouseWheel;
+                this.MouseWheel = this._newMouseState.ScrollWheelValue;
+                this.MouseWheelChange = Bridge.Int.sign(this.MouseWheel - prevMouseWheel);
+            },
+            UpdateMousePosition: function (pos) {
+                // move mouse position back to center
+                Microsoft.Xna.Framework.Input.Mouse.SetPosition(Bridge.Int.clip32(pos.X), Bridge.Int.clip32(pos.Y));
+                this._newMousePos = (this._oldMousePos = pos.$clone());
+            },
+            TransformMousePosition: function (transform) {
+                var newMousePos = this._newMousePos.$clone();
+                if (System.Nullable.liftne(Microsoft.Xna.Framework.Matrix.op_Inequality, System.Nullable.lift1("$clone", transform), null)) {
+                    return Microsoft.Xna.Framework.Vector2.op_Subtraction(Microsoft.Xna.Framework.Vector2.Transform(newMousePos.$clone(), System.Nullable.getValue(transform).$clone()), new Microsoft.Xna.Framework.Vector2.$ctor2(System.Nullable.getValue(transform).Translation.X, System.Nullable.getValue(transform).Translation.Y));
+                }
+                return newMousePos.$clone();
+            },
+            MouseButtonDown: function (button) {
+                if (button === void 0) { button = 0; }
+                return this.GetMouseButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+            },
+            AnyMouseButtonDown: function () {
+                return this.MouseButtonDown(FaceUI.MouseButton.Left) || this.MouseButtonDown(FaceUI.MouseButton.Right) || this.MouseButtonDown(FaceUI.MouseButton.Middle);
+            },
+            MouseButtonReleased: function (button) {
+                if (button === void 0) { button = 0; }
+                return this.GetMouseButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Released && this.GetMousePreviousButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+            },
+            AnyMouseButtonReleased: function () {
+                return this.MouseButtonReleased(FaceUI.MouseButton.Left) || this.MouseButtonReleased(FaceUI.MouseButton.Right) || this.MouseButtonReleased(FaceUI.MouseButton.Middle);
+            },
+            MouseButtonPressed: function (button) {
+                if (button === void 0) { button = 0; }
+                return this.GetMouseButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Pressed && this.GetMousePreviousButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Released;
+            },
+            AnyMouseButtonPressed: function () {
+                return this.MouseButtonPressed(FaceUI.MouseButton.Left) || this.MouseButtonPressed(FaceUI.MouseButton.Right) || this.MouseButtonPressed(FaceUI.MouseButton.Middle);
+            },
+            MouseButtonClick: function (button) {
+                if (button === void 0) { button = 0; }
+                return this.GetMouseButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Released && this.GetMousePreviousButtonState(button) === Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+            },
+            AnyMouseButtonClicked: function () {
+                return this.MouseButtonClick(FaceUI.MouseButton.Left) || this.MouseButtonClick(FaceUI.MouseButton.Right) || this.MouseButtonClick(FaceUI.MouseButton.Middle);
+            },
+            GetMouseButtonState: function (button) {
+                if (button === void 0) { button = 0; }
+                switch (button) {
+                    case FaceUI.MouseButton.Left: 
+                        return this._newMouseState.LeftButton;
+                    case FaceUI.MouseButton.Right: 
+                        return this._newMouseState.RightButton;
+                    case FaceUI.MouseButton.Middle: 
+                        return this._newMouseState.MiddleButton;
+                }
+                return Microsoft.Xna.Framework.Input.ButtonState.Released;
+            },
+            GetMousePreviousButtonState: function (button) {
+                if (button === void 0) { button = 0; }
+                switch (button) {
+                    case FaceUI.MouseButton.Left: 
+                        return this._oldMouseState.LeftButton;
+                    case FaceUI.MouseButton.Right: 
+                        return this._oldMouseState.RightButton;
+                    case FaceUI.MouseButton.Middle: 
+                        return this._oldMouseState.MiddleButton;
+                }
+                return Microsoft.Xna.Framework.Input.ButtonState.Released;
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State", {
+        $kind: "nested struct",
+        statics: {
+            methods: {
+                getDefaultValue: function () { return new MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State(); }
+            }
+        },
+        props: {
+            X: 0,
+            Y: 0,
+            LeftButton: 0,
+            RightButton: 0,
+            MiddleButton: 0,
+            ScrollWheelValue: 0
+        },
+        ctors: {
+            ctor: function () {
+                this.$initialize();
+            }
+        },
+        methods: {
+            getHashCode: function () {
+                var h = Bridge.addHash([1952543928, this.X, this.Y, this.LeftButton, this.RightButton, this.MiddleButton, this.ScrollWheelValue]);
+                return h;
+            },
+            equals: function (o) {
+                if (!Bridge.is(o, MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State)) {
+                    return false;
+                }
+                return Bridge.equals(this.X, o.X) && Bridge.equals(this.Y, o.Y) && Bridge.equals(this.LeftButton, o.LeftButton) && Bridge.equals(this.RightButton, o.RightButton) && Bridge.equals(this.MiddleButton, o.MiddleButton) && Bridge.equals(this.ScrollWheelValue, o.ScrollWheelValue);
+            },
+            $clone: function (to) {
+                var s = to || new MyONez.AdditionalContent.FaceUI.Utils.ResolutionMouseProvider.State();
+                s.X = this.X;
+                s.Y = this.Y;
+                s.LeftButton = this.LeftButton;
+                s.RightButton = this.RightButton;
+                s.MiddleButton = this.MiddleButton;
+                s.ScrollWheelValue = this.ScrollWheelValue;
+                return s;
+            }
+        }
+    });
+
+    Bridge.define("MyONez.AdditionalContent.FaceUI.Utils.ScreenGraphicDeviceWrapper", {
+        inherits: [FaceUI.Utils.GraphicDeviceWrapper],
+        props: {
+            ViewRectangle: null,
+            Viewport: {
+                get: function () {
+                    return this.ViewRectangle.$clone();
+                }
+            },
+            GraphicsDevice: null,
+            PresentationParameters: null
+        },
+        ctors: {
+            init: function () {
+                this.ViewRectangle = new Microsoft.Xna.Framework.Rectangle();
+            }
+        },
+        methods: {
+            Clear: function (color) {
+
+            },
+            SetRenderTarget: function (target) {
+
             }
         }
     });

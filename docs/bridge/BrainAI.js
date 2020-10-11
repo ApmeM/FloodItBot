@@ -1307,30 +1307,6 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         }
     }; });
 
-    Bridge.define("BrainAI.ECS.Components.AIComponent", {
-        inherits: [LocomotorECS.Component],
-        props: {
-            AIBot: null
-        }
-    });
-
-    Bridge.define("BrainAI.ECS.EntitySystems.AIUpdateSystem", {
-        inherits: [LocomotorECS.EntityProcessingSystem],
-        ctors: {
-            ctor: function () {
-                this.$initialize();
-                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([BrainAI.ECS.Components.AIComponent]));
-            }
-        },
-        methods: {
-            DoAction$1: function (entity, gameTime) {
-                LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
-                var ai = entity.GetComponent(BrainAI.ECS.Components.AIComponent);
-                ai.AIBot.BrainAI$AI$IAITurn$Tick();
-            }
-        }
-    });
-
     Bridge.define("BrainAI.InfluenceMap.Fading.IFading", {
         $kind: "interface"
     });

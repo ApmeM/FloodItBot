@@ -2,12 +2,12 @@
 {
     using System;
 
-    using GeonBit.UI.ECS.Components;
-
     using LocomotorECS;
     using LocomotorECS.Matching;
 
     using FloodItBot.Base.Components;
+
+    using MyONez.AdditionalContent.FaceUI.ECS.Components;
 
     public class CounterToTextUpdateSystem : EntityProcessingSystem
     {

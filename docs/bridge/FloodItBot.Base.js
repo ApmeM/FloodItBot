@@ -157,7 +157,7 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
             var $t;
             _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 4, $t.Enumerator = FloodItBot.Base.Screens.MultiplayerScene.GetEnumerator(this.Content), $t));
             _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 4, $t.Enumerator = FloodItBot.Base.Screens.SingleplayerScene.GetEnumerator(this.Content), $t));
-            _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 47, $t.Enumerator = GeonBit.UI.Utils.GeonBitUIResources.GetEnumerator(this.Content, "hd"), $t));
+            _o1.add(($t = new MyONez.AdditionalContent.Scenes.LoadingData(), $t.Count = 47, $t.Enumerator = MyONez.AdditionalContent.FaceUI.Utils.GeonBitUIResources.GetEnumerator(this.Content, "hd"), $t));
             return _o1;
         }
     });
@@ -183,16 +183,16 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
 
                 this.AddRenderer(MyONez.Graphics.Renderers.DefaultRenderer, new MyONez.Graphics.Renderers.DefaultRenderer());
 
-                this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
+                this.AddEntitySystem(new MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
 
                 var uiEntity = this.CreateEntity("UI");
-                var ui = uiEntity.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
+                var ui = uiEntity.AddComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent);
                 ui.UserInterface.ShowCursor = false;
 
-                var panel = new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(500, 500));
+                var panel = new FaceUI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(500, 500));
 
-                panel.AddChild(new GeonBit.UI.Entities.Button.$ctor1("Single player")).OnClick = $asm.$.FloodItBot.Base.Screens.GameChooseScene.f1;
-                panel.AddChild(new GeonBit.UI.Entities.Button.$ctor1("Multi player")).OnClick = $asm.$.FloodItBot.Base.Screens.GameChooseScene.f2;
+                panel.AddChild(new FaceUI.Entities.Button.$ctor1("Single player")).OnClick = $asm.$.FloodItBot.Base.Screens.GameChooseScene.f1;
+                panel.AddChild(new FaceUI.Entities.Button.$ctor1("Multi player")).OnClick = $asm.$.FloodItBot.Base.Screens.GameChooseScene.f2;
                 ui.UserInterface.AddEntity(panel);
             }
         }
@@ -261,13 +261,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.AddEntitySystem(new FloodItBot.Base.Systems.ApplyTurnUpdateSystem(this));
                 this.AddEntitySystem(new FloodItBot.Base.Systems.CounterToTextUpdateSystem());
                 this.AddEntitySystem(new FloodItBot.Base.Systems.MultiplayerGameOverUpdateSystem(this));
-                this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem());
-                this.AddEntitySystem(new BrainAI.ECS.EntitySystems.AIUpdateSystem());
-                this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
+                this.AddEntitySystem(new MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem());
+                this.AddEntitySystem(new MyONez.AdditionalContent.BrainAI.EntitySystems.AIUpdateSystem());
+                this.AddEntitySystem(new MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
                 this.AddEntitySystem(new FloodItBot.Base.Systems.TurnSelectorUpdateSystem());
                 this.AddEntitySystem(new FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem(this));
 
-                this.AddEntitySystemExecutionOrder(BrainAI.ECS.EntitySystems.AIUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.AdditionalContent.BrainAI.EntitySystems.AIUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.FieldClickUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.TurnSelectorUpdateSystem, FloodItBot.Base.Systems.ApplyTurnUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ApplyTurnUpdateSystem, FloodItBot.Base.Systems.FieldMeshGeneratorSystem);
@@ -276,8 +276,8 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ApplyTurnUpdateSystem, FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem, FloodItBot.Base.Systems.FieldMeshGeneratorSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, FloodItBot.Base.Systems.MultiplayerGameOverUpdateSystem);
-                this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
-                this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
+                this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem, MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem);
 
                 var moonTex = MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.moon);
 
@@ -323,48 +323,48 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 var counter = counterEntity.AddComponent(FloodItBot.Base.Components.CounterComponent);
                 counter.Players.add(new FloodItBot.Base.Components.CounterComponent.PlayerData());
                 counter.Players.add(new FloodItBot.Base.Components.CounterComponent.PlayerData());
-                counterEntity.AddComponent(GeonBit.UI.ECS.Components.TextComponent).Text = "Test text;";
+                counterEntity.AddComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent).Text = "Test text;";
                 counterEntity.AddComponent(MyONez.ECS.Components.ColorComponent).Color = Microsoft.Xna.Framework.Color.Gray.$clone();
                 counterEntity.AddComponent(MyONez.ECS.Components.RenderOrderComponent).Order = -1;
 
                 var uiEntity = this.CreateEntity("UI");
-                var ui = uiEntity.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
+                var ui = uiEntity.AddComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent);
                 ui.UserInterface.ShowCursor = false;
-                var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
+                var panel = ui.UserInterface.AddEntity(new FaceUI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), FaceUI.Entities.PanelSkin.None, FaceUI.Entities.Anchor.CenterLeft));
 
-                var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
-                var player1DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
+                var player1Label = new FaceUI.Entities.Label.$ctor1("Player 1", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
+                var player1DropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
                 player1DropDown.AddItem("User");
                 player1DropDown.AddItem("Easy");
                 player1DropDown.AddItem("Med.");
                 player1DropDown.AddItem("Hard");
                 player1DropDown.SelectedValue = "User";
 
-                var player2Label = new GeonBit.UI.Entities.Label.$ctor1("Player 2", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 60));
-                var player2DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 90));
+                var player2Label = new FaceUI.Entities.Label.$ctor1("Player 2", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 60));
+                var player2DropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 90));
                 player2DropDown.AddItem("User");
                 player2DropDown.AddItem("Easy");
                 player2DropDown.AddItem("Med.");
                 player2DropDown.AddItem("Hard");
                 player2DropDown.SelectedValue = "Hard";
 
-                var colorsCountLabel = new GeonBit.UI.Entities.Label.$ctor1("Colors count", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 180));
-                var colorsCountDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 210));
+                var colorsCountLabel = new FaceUI.Entities.Label.$ctor1("Colors count", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 180));
+                var colorsCountDropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 210));
                 colorsCountDropDown.AddItem("4");
                 colorsCountDropDown.AddItem("5");
                 colorsCountDropDown.AddItem("6");
                 colorsCountDropDown.AddItem("7");
                 colorsCountDropDown.SelectedValue = Bridge.toString(FloodItBot.Base.Screens.SharedData.ColorsCount);
 
-                var fieldSizeLabel = new GeonBit.UI.Entities.Label.$ctor1("Field size", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 180));
-                var fieldSizeDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 210));
+                var fieldSizeLabel = new FaceUI.Entities.Label.$ctor1("Field size", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 180));
+                var fieldSizeDropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 210));
                 fieldSizeDropDown.AddItem("7");
                 fieldSizeDropDown.AddItem("11");
                 fieldSizeDropDown.AddItem("15");
                 fieldSizeDropDown.AddItem("19");
                 fieldSizeDropDown.SelectedValue = Bridge.toString(FloodItBot.Base.Screens.SharedData.MapSize);
 
-                var settingsMessageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", new Microsoft.Xna.Framework.Vector2.$ctor2(600, 450), System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown], GeonBit.UI.Entities.Entity));
+                var settingsMessageBox = FaceUI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", new Microsoft.Xna.Framework.Vector2.$ctor2(600, 450), System.Array.init([player1Label, player1DropDown, player2Label, player2DropDown, colorsCountLabel, colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown], FaceUI.Entities.Entity));
 
                 settingsMessageBox.OnDone = Bridge.fn.bind(this, function (b) {
                     player1.Enabled = true;
@@ -390,13 +390,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                     this.Restart(field, counter);
                 });
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
+                panel.AddChild(($t = new FaceUI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
                     settingsMessageBox.Show();
                     player1.Enabled = false;
                     player2.Enabled = false;
                 }, $t));
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Back"), $t.OnClick = $asm.$.FloodItBot.Base.Screens.MultiplayerScene.f1, $t));
+                panel.AddChild(($t = new FaceUI.Entities.Button.$ctor1("Back"), $t.OnClick = $asm.$.FloodItBot.Base.Screens.MultiplayerScene.f1, $t));
 
                 counter.Players.getItem(0).Name = player1DropDown.SelectedValue;
                 counter.Players.getItem(1).Name = player2DropDown.SelectedValue;
@@ -404,12 +404,12 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.InitPlayer(player2, player2Turn, switcher, player2DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
 
-                GeonBit.UI.UserInterface.Active = ui.UserInterface;
+                FaceUI.UserInterface.Active = ui.UserInterface;
             }
         },
         methods: {
             InitPlayer: function (player, playerTurn, switcher, selectedValue, fieldMap) {
-                player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
+                player.RemoveComponent$1(MyONez.AdditionalContent.BrainAI.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputTouchComponent);
                 switch (selectedValue) {
@@ -418,13 +418,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                         player.AddComponent(MyONez.ECS.Components.InputTouchComponent);
                         break;
                     case "Easy": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.RandomFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.RandomFloodItAI(playerTurn, switcher));
                         break;
                     case "Med.": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.LineFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.LineFloodItAI(playerTurn, switcher));
                         break;
                     case "Hard": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.GreedyFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.GreedyFloodItAI(playerTurn, switcher));
                         break;
                 }
             },
@@ -526,13 +526,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.AddEntitySystem(new FloodItBot.Base.Systems.ApplyTurnUpdateSystem(this));
                 this.AddEntitySystem(new FloodItBot.Base.Systems.CounterToTextUpdateSystem());
                 this.AddEntitySystem(new FloodItBot.Base.Systems.SingleplayerGameOverUpdateSystem(this));
-                this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem());
-                this.AddEntitySystem(new BrainAI.ECS.EntitySystems.AIUpdateSystem());
-                this.AddEntitySystem(new GeonBit.UI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
+                this.AddEntitySystem(new MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem());
+                this.AddEntitySystem(new MyONez.AdditionalContent.BrainAI.EntitySystems.AIUpdateSystem());
+                this.AddEntitySystem(new MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem(MyONez.Core.Instance.Content));
                 this.AddEntitySystem(new FloodItBot.Base.Systems.TurnSelectorUpdateSystem());
                 this.AddEntitySystem(new FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem(this));
 
-                this.AddEntitySystemExecutionOrder(BrainAI.ECS.EntitySystems.AIUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.AdditionalContent.BrainAI.EntitySystems.AIUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.FieldClickUpdateSystem, FloodItBot.Base.Systems.TurnSelectorUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.TurnSelectorUpdateSystem, FloodItBot.Base.Systems.ApplyTurnUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ApplyTurnUpdateSystem, FloodItBot.Base.Systems.FieldMeshGeneratorSystem);
@@ -541,8 +541,8 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ApplyTurnUpdateSystem, FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.ColorSelectorGrayingUpdateSystem, FloodItBot.Base.Systems.FieldMeshGeneratorSystem);
                 this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, FloodItBot.Base.Systems.SingleplayerGameOverUpdateSystem);
-                this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
-                this.AddEntitySystemExecutionOrder(GeonBit.UI.ECS.EntitySystems.UIUpdateSystem, GeonBit.UI.ECS.EntitySystems.TextUIUpdateSystem);
+                this.AddEntitySystemExecutionOrder(FloodItBot.Base.Systems.CounterToTextUpdateSystem, MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem);
+                this.AddEntitySystemExecutionOrder(MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.UIUpdateSystem, MyONez.AdditionalContent.FaceUI.ECS.EntitySystems.TextUIUpdateSystem);
 
                 var moonTex = MyONez.Core.Instance.Content.Load(Microsoft.Xna.Framework.Graphics.Texture2D, FloodItBot.Base.ContentPaths.moon);
 
@@ -577,46 +577,46 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                         return _o1;
                     }(new (System.Collections.Generic.List$1(FloodItBot.Base.Components.TurnMadeComponent)).ctor()), $t));
 
-                player1.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(field.Map, new FloodItBot.Base.AI.GreedyFloodItAI(player1Turn, switcher));
+                player1.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(field.Map, new FloodItBot.Base.AI.GreedyFloodItAI(player1Turn, switcher));
 
                 var counterEntity = this.CreateEntity("Counter");
                 var counter = counterEntity.AddComponent(FloodItBot.Base.Components.CounterComponent);
                 counter.Players.add(new FloodItBot.Base.Components.CounterComponent.PlayerData());
-                counterEntity.AddComponent(GeonBit.UI.ECS.Components.TextComponent).Text = "Test text;";
+                counterEntity.AddComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent).Text = "Test text;";
                 counterEntity.AddComponent(MyONez.ECS.Components.ColorComponent).Color = Microsoft.Xna.Framework.Color.Gray.$clone();
 
                 this.Restart(field, counter);
 
                 var uiEntity = this.CreateEntity("UI");
-                var ui = uiEntity.AddComponent(GeonBit.UI.ECS.Components.UIComponent);
+                var ui = uiEntity.AddComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.UIComponent);
                 ui.UserInterface.ShowCursor = false;
-                var panel = ui.UserInterface.AddEntity(new GeonBit.UI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), GeonBit.UI.Entities.PanelSkin.None, GeonBit.UI.Entities.Anchor.CenterLeft));
+                var panel = ui.UserInterface.AddEntity(new FaceUI.Entities.Panel.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, 250), FaceUI.Entities.PanelSkin.None, FaceUI.Entities.Anchor.CenterLeft));
 
-                var player1Label = new GeonBit.UI.Entities.Label.$ctor1("Player 1", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
-                var player1DropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
+                var player1Label = new FaceUI.Entities.Label.$ctor1("Player 1", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 60));
+                var player1DropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 90));
                 player1DropDown.AddItem("User");
                 player1DropDown.AddItem("Easy");
                 player1DropDown.AddItem("Med.");
                 player1DropDown.AddItem("Hard");
                 player1DropDown.SelectedValue = "User";
 
-                var colorsCountLabel = new GeonBit.UI.Entities.Label.$ctor1("Colors count", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 180));
-                var colorsCountDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 210));
+                var colorsCountLabel = new FaceUI.Entities.Label.$ctor1("Colors count", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 180));
+                var colorsCountDropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(0, 210));
                 colorsCountDropDown.AddItem("4");
                 colorsCountDropDown.AddItem("5");
                 colorsCountDropDown.AddItem("6");
                 colorsCountDropDown.AddItem("7");
                 colorsCountDropDown.SelectedValue = Bridge.toString(FloodItBot.Base.Screens.SharedData.ColorsCount);
 
-                var fieldSizeLabel = new GeonBit.UI.Entities.Label.$ctor1("Field size", GeonBit.UI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 180));
-                var fieldSizeDropDown = new GeonBit.UI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), GeonBit.UI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 210));
+                var fieldSizeLabel = new FaceUI.Entities.Label.$ctor1("Field size", FaceUI.Entities.Anchor.TopLeft, null, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 180));
+                var fieldSizeDropDown = new FaceUI.Entities.DropDown.$ctor1(new Microsoft.Xna.Framework.Vector2.$ctor2(250, -1), FaceUI.Entities.Anchor.TopLeft, new Microsoft.Xna.Framework.Vector2.$ctor2(300, 210));
                 fieldSizeDropDown.AddItem("7");
                 fieldSizeDropDown.AddItem("11");
                 fieldSizeDropDown.AddItem("15");
                 fieldSizeDropDown.AddItem("19");
                 fieldSizeDropDown.SelectedValue = Bridge.toString(FloodItBot.Base.Screens.SharedData.MapSize);
 
-                var settingsMessageBox = GeonBit.UI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", new Microsoft.Xna.Framework.Vector2.$ctor2(600, 450), System.Array.init([player1Label, player1DropDown, colorsCountLabel, colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown], GeonBit.UI.Entities.Entity));
+                var settingsMessageBox = FaceUI.Utils.MessageBox.BuildMessageBox$1("Settings", "", "Set", new Microsoft.Xna.Framework.Vector2.$ctor2(600, 450), System.Array.init([player1Label, player1DropDown, colorsCountLabel, colorsCountDropDown, fieldSizeLabel, fieldSizeDropDown], FaceUI.Entities.Entity));
 
                 settingsMessageBox.OnDone = Bridge.fn.bind(this, function (b) {
                     player1.Enabled = true;
@@ -637,23 +637,23 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                     this.Restart(field, counter);
                 });
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
+                panel.AddChild(($t = new FaceUI.Entities.Button.$ctor1("Settings"), $t.OnClick = function (b) {
                     settingsMessageBox.Show();
                     player1.Enabled = false;
                 }, $t));
 
-                panel.AddChild(($t = new GeonBit.UI.Entities.Button.$ctor1("Back"), $t.OnClick = $asm.$.FloodItBot.Base.Screens.SingleplayerScene.f1, $t));
+                panel.AddChild(($t = new FaceUI.Entities.Button.$ctor1("Back"), $t.OnClick = $asm.$.FloodItBot.Base.Screens.SingleplayerScene.f1, $t));
 
                 counter.Players.getItem(0).Name = player1DropDown.SelectedValue;
                 this.InitPlayer(player1, player1Turn, switcher, player1DropDown.SelectedValue, field.Map);
                 this.Restart(field, counter);
 
-                GeonBit.UI.UserInterface.Active = ui.UserInterface;
+                FaceUI.UserInterface.Active = ui.UserInterface;
             }
         },
         methods: {
             InitPlayer: function (player, playerTurn, switcher, selectedValue, fieldMap) {
-                player.RemoveComponent$1(BrainAI.ECS.Components.AIComponent);
+                player.RemoveComponent$1(MyONez.AdditionalContent.BrainAI.Components.AIComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputMouseComponent);
                 player.RemoveComponent$1(MyONez.ECS.Components.InputTouchComponent);
                 switch (selectedValue) {
@@ -662,13 +662,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
                         player.AddComponent(MyONez.ECS.Components.InputTouchComponent);
                         break;
                     case "Easy": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.RandomFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.RandomFloodItAI(playerTurn, switcher));
                         break;
                     case "Med.": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.LineFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.LineFloodItAI(playerTurn, switcher));
                         break;
                     case "Hard": 
-                        player.AddComponent(BrainAI.ECS.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.GreedyFloodItAI(playerTurn, switcher));
+                        player.AddComponent(MyONez.AdditionalContent.BrainAI.Components.AIComponent).AIBot = new (BrainAI.AI.FSM.StateMachine$1(System.Array.type(System.Int32, 2)))(fieldMap, new FloodItBot.Base.AI.GreedyFloodItAI(playerTurn, switcher));
                         break;
                 }
             },
@@ -899,13 +899,13 @@ Bridge.assembly("FloodItBot.Base", function ($asm, globals) {
         ctors: {
             ctor: function () {
                 this.$initialize();
-                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([GeonBit.UI.ECS.Components.TextComponent, FloodItBot.Base.Components.CounterComponent]));
+                LocomotorECS.EntityProcessingSystem.ctor.call(this, new LocomotorECS.Matching.Matcher().All([MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent, FloodItBot.Base.Components.CounterComponent]));
             }
         },
         methods: {
             DoAction$1: function (entity, gameTime) {
                 LocomotorECS.EntityProcessingSystem.prototype.DoAction$1.call(this, entity, gameTime);
-                var text = entity.GetComponent(GeonBit.UI.ECS.Components.TextComponent);
+                var text = entity.GetComponent(MyONez.AdditionalContent.FaceUI.ECS.Components.TextComponent);
                 var counter = entity.GetComponent(FloodItBot.Base.Components.CounterComponent);
 
                 var name = "     ";
