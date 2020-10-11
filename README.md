@@ -33,8 +33,8 @@ Please do not add external libraries to your bot as it might break web/android c
 
 Credits
 ==========
-- Game engine https://github.io/ApmeM/MyONez/ that allows to run same code on web, desktop and android (others were not tested).
-- Bot engine is written https://github.io/ApmeM/BrainAI/.
+- Game engine https://github.com/ApmeM/MyONez/ that allows to run same code on web, desktop and android (others were not tested).
+- Bot engine is written https://github.com/ApmeM/BrainAI/.
 
 Demo
 ==========
