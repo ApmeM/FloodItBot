@@ -6,14 +6,10 @@
     using System.Collections.Generic;
 
     using BrainAI.AI.FSM;
-    using BrainAI.ECS.Components;
-    using BrainAI.ECS.EntitySystems;
 
-    using GeonBit.UI;
-    using GeonBit.UI.ECS.Components;
-    using GeonBit.UI.ECS.EntitySystems;
-    using GeonBit.UI.Entities;
-    using GeonBit.UI.Utils;
+    using FaceUI;
+    using FaceUI.Entities;
+    using FaceUI.Utils;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Content;
@@ -28,6 +24,10 @@
     using FloodItBot.Base.Systems;
 
     using MyONez;
+    using MyONez.AdditionalContent.BrainAI.Components;
+    using MyONez.AdditionalContent.BrainAI.EntitySystems;
+    using MyONez.AdditionalContent.FaceUI.ECS.Components;
+    using MyONez.AdditionalContent.FaceUI.ECS.EntitySystems;
 
     using Random = MyONez.Maths.Random;
 

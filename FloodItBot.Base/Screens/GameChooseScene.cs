@@ -2,30 +2,16 @@
 {
     #region Using Directives
 
-    using System.Collections.Generic;
-
-    using BrainAI.AI.FSM;
-    using BrainAI.ECS.Components;
-    using BrainAI.ECS.EntitySystems;
-
-    using GeonBit.UI.ECS.Components;
-    using GeonBit.UI.ECS.EntitySystems;
-    using GeonBit.UI.Entities;
+    using FaceUI.Entities;
 
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
 
     using MyONez.ECS;
-    using MyONez.ECS.Components;
     using MyONez.Graphics.Renderers;
     using MyONez.Graphics.ResolutionPolicy;
-    using FloodItBot.Base.AI;
-    using FloodItBot.Base.Components;
-    using FloodItBot.Base.Systems;
-
     using MyONez;
-
-    using Random = MyONez.Maths.Random;
+    using MyONez.AdditionalContent.FaceUI.ECS.Components;
+    using MyONez.AdditionalContent.FaceUI.ECS.EntitySystems;
 
     #endregion
 

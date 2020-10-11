@@ -6,14 +6,13 @@ namespace FloodItBot.Base
     using System.Collections.Generic;
     using System.Threading;
 
-    using GeonBit.UI.Utils;
-
     using Microsoft.Xna.Framework.Graphics;
 
     using MyONez.AdditionalContent.Scenes;
     using FloodItBot.Base.Screens;
 
     using MyONez;
+    using MyONez.AdditionalContent.FaceUI.Utils;
 
     #endregion
 
