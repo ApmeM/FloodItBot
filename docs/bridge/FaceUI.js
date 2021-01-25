@@ -304,6 +304,7 @@ Bridge.assembly("FaceUI", function ($asm, globals) {
      */
     Bridge.define("FaceUI.DataTypes.DefaultStyles", {
         fields: {
+            State: null,
             Scale: null,
             FillColor: null,
             OutlineColor: null,
@@ -318,6 +319,12 @@ Bridge.assembly("FaceUI", function ($asm, globals) {
             SpaceAfter: null,
             ShadowScale: null,
             DefaultSize: null
+        }
+    });
+
+    Bridge.define("FaceUI.DataTypes.DefaultStylesList", {
+        fields: {
+            Styles: null
         }
     });
 
@@ -6937,17 +6944,21 @@ Bridge.assembly("FaceUI", function ($asm, globals) {
                  * @return  {void}
                  */
                 LoadDefaultStyles: function (sheet, entityName, themeRoot, content) {
+                    var $t, $t1;
                     // get stylesheet root path (eg everything before the state part)
                     var stylesheetBase = (themeRoot || "") + "styles/" + (entityName || "");
-
-                    // load default styles
-                    FaceUI.Resources.FillDefaultStyles(sheet, FaceUI.Entities.EntityState.Default, content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-Default"));
-
-                    // load mouse-hover styles
-                    FaceUI.Resources.FillDefaultStyles(sheet, FaceUI.Entities.EntityState.MouseHover, content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseHover"));
-
-                    // load mouse-down styles
-                    FaceUI.Resources.FillDefaultStyles(sheet, FaceUI.Entities.EntityState.MouseDown, content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseDown"));
+                    var styles = content.Load(FaceUI.DataTypes.DefaultStylesList, stylesheetBase);
+                    $t = Bridge.getEnumerator(styles.Styles);
+                    try {
+                        while ($t.moveNext()) {
+                            var style = $t.Current;
+                            FaceUI.Resources.FillDefaultStyles(sheet, ($t1 = style.State, $t1 != null ? $t1 : FaceUI.Entities.EntityState.Default), style);
+                        }
+                    } finally {
+                        if (Bridge.is($t, System.IDisposable)) {
+                            $t.System$IDisposable$Dispose();
+                        }
+                    }
                 },
                 /**
                  * Fill a set of default styles into a given stylesheet.
@@ -15309,9 +15320,19 @@ Bridge.assembly("FaceUI", function ($asm, globals) {
     });
 
     Bridge.define("FaceUI.PipelineImporter.DefaultStylesReader", {
-        inherits: [Microsoft.Xna.Framework.Content.ContentTypeReader$1(FaceUI.DataTypes.DefaultStyles)],
+        inherits: [Microsoft.Xna.Framework.Content.ContentTypeReader$1(FaceUI.DataTypes.DefaultStylesList)],
         methods: {
             Read$1: function (reader, existingInstance) {
+                var $t;
+                var result = ($t = new FaceUI.DataTypes.DefaultStylesList(), $t.Styles = System.Array.init(reader.ReadInt32(), null, FaceUI.DataTypes.DefaultStyles), $t);
+
+                for (var i = 0; i < result.Styles.length; i = (i + 1) | 0) {
+                    result.Styles[System.Array.index(i, result.Styles)] = this.Read$2(reader);
+                }
+
+                return result;
+            },
+            Read$2: function (reader) {
                 var result = new FaceUI.DataTypes.DefaultStyles();
                 if (reader.ReadBoolean()) {
                     result.Scale = reader.ReadSingle();

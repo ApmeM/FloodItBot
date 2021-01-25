@@ -1311,7 +1311,7 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         $kind: "interface"
     });
 
-    Bridge.define("BrainAI.InfluenceMap.InfluenceMap", {
+    Bridge.define("BrainAI.InfluenceMap.Fading.DefaultFadings", {
         statics: {
             fields: {
                 NoDistanceFading: null,
@@ -1329,13 +1329,45 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
                     this.TripleDistanceFading = new BrainAI.InfluenceMap.Fading.NPowDistanceFading(3);
                 }
             }
+        }
+    });
+
+    Bridge.define("BrainAI.InfluenceMap.MatrixInfluenceMap", {
+        fields: {
+            Map: null
         },
+        ctors: {
+            ctor: function (width, height) {
+                this.$initialize();
+                this.Map = System.Array.create(0, null, System.Single, width, height);
+            }
+        },
+        methods: {
+            AddCharge: function (origin, fading, value) {
+                var atPosition = new BrainAI.Pathfinding.Point.ctor();
+                for (var x = 0; x < System.Array.getLength(this.Map, 0); x = (x + 1) | 0) {
+                    for (var y = 0; y < System.Array.getLength(this.Map, 1); y = (y + 1) | 0) {
+                        atPosition.X = x;
+                        atPosition.Y = y;
+                        var vector = origin.BrainAI$InfluenceMap$VectorGenerator$IChargeOrigin$GetVector(atPosition.$clone());
+                        this.Map.set([atPosition.X, atPosition.Y],this.Map.get([atPosition.X, atPosition.Y]) +(fading.BrainAI$InfluenceMap$Fading$IFading$GetPower(((Math.abs(vector.X) + Math.abs(vector.Y)) | 0), value)));
+                    }
+                }
+            }
+        }
+    });
+
+    Bridge.define("BrainAI.InfluenceMap.VectorGenerator.IChargeOrigin", {
+        $kind: "interface"
+    });
+
+    Bridge.define("BrainAI.InfluenceMap.VectorInfluenceMap", {
         fields: {
             Charges: null
         },
         ctors: {
             init: function () {
-                this.Charges = new (System.Collections.Generic.List$1(BrainAI.InfluenceMap.InfluenceMap.Charge)).ctor();
+                this.Charges = new (System.Collections.Generic.List$1(BrainAI.InfluenceMap.VectorInfluenceMap.Charge)).ctor();
             }
         },
         methods: {
@@ -1361,7 +1393,7 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         }
     });
 
-    Bridge.define("BrainAI.InfluenceMap.InfluenceMap.Charge", {
+    Bridge.define("BrainAI.InfluenceMap.VectorInfluenceMap.Charge", {
         $kind: "nested class",
         fields: {
             Name: null,
@@ -1375,10 +1407,6 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
                 return System.String.format("{0} at {1} with {2}", ($t = this.Name, $t != null ? $t : "Charge"), this.Origin, Bridge.box(this.Value, System.Single, System.Single.format, System.Single.getHashCode));
             }
         }
-    });
-
-    Bridge.define("BrainAI.InfluenceMap.VectorGenerator.IChargeOrigin", {
-        $kind: "interface"
     });
 
     /** @namespace BrainAI.Pathfinding.BreadthFirst */
@@ -2552,7 +2580,10 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         fields: {
             radius: 0
         },
-        alias: ["GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce"],
+        alias: [
+            "GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce",
+            "GetPower", "BrainAI$InfluenceMap$Fading$IFading$GetPower"
+        ],
         ctors: {
             ctor: function (radius) {
                 this.$initialize();
@@ -2561,21 +2592,17 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         },
         methods: {
             GetForce: function (vector, chargeValue) {
-                var quadRadius = this.radius * this.radius;
-
                 var vectorX = vector.X;
                 var vectorY = vector.Y;
 
                 var quadDist = (Bridge.Int.mul(vectorX, vectorX) + Bridge.Int.mul(vectorY, vectorY)) | 0;
-
-                if (quadDist > quadRadius) {
-                    return new BrainAI.Pathfinding.Point.ctor();
-                }
-
                 var dist = Math.sqrt(quadDist);
-                var affectPower = chargeValue;
+                var affectPower = this.GetPower(dist, chargeValue);
 
-                return new BrainAI.Pathfinding.Point.$ctor1(Bridge.Int.clip32(vectorX / dist * affectPower), Bridge.Int.clip32(vectorY / dist * affectPower));
+                return new BrainAI.Pathfinding.Point.$ctor1(Bridge.Int.clip32(vector.X / dist * affectPower), Bridge.Int.clip32(vector.Y / dist * affectPower));
+            },
+            GetPower: function (distance, chargeValue) {
+                return distance > this.radius ? 0 : chargeValue;
             }
         }
     });
@@ -2585,7 +2612,10 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         fields: {
             distanceEffectValue: 0
         },
-        alias: ["GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce"],
+        alias: [
+            "GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce",
+            "GetPower", "BrainAI$InfluenceMap$Fading$IFading$GetPower"
+        ],
         ctors: {
             ctor: function (distanceEffectValue) {
                 this.$initialize();
@@ -2599,21 +2629,29 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
 
                 var quadDist = (Bridge.Int.mul(vectorX, vectorX) + Bridge.Int.mul(vectorY, vectorY)) | 0;
                 var dist = Math.sqrt(quadDist);
-                var affectPower;
-                if (chargeValue > 0) {
-                    affectPower = chargeValue - Math.min(chargeValue, dist * this.distanceEffectValue);
-                } else {
-                    affectPower = chargeValue + Math.min(-chargeValue, dist * this.distanceEffectValue);
-                }
+                var affectPower = this.GetPower(dist, chargeValue);
 
                 return new BrainAI.Pathfinding.Point.$ctor1(Bridge.Int.clip32(vectorX / dist * affectPower), Bridge.Int.clip32(vectorY / dist * affectPower));
+            },
+            GetPower: function (distance, chargeValue) {
+                var affectPower;
+                if (chargeValue > 0) {
+                    affectPower = chargeValue - Math.min(chargeValue, distance * this.distanceEffectValue);
+                } else {
+                    affectPower = chargeValue + Math.min(-chargeValue, distance * this.distanceEffectValue);
+                }
+
+                return affectPower;
             }
         }
     });
 
     Bridge.define("BrainAI.InfluenceMap.Fading.NoDistanceFading", {
         inherits: [BrainAI.InfluenceMap.Fading.IFading],
-        alias: ["GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce"],
+        alias: [
+            "GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce",
+            "GetPower", "BrainAI$InfluenceMap$Fading$IFading$GetPower"
+        ],
         methods: {
             GetForce: function (vector, chargeValue) {
                 var vectorX = vector.X;
@@ -2621,9 +2659,12 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
 
                 var quadDist = (Bridge.Int.mul(vectorX, vectorX) + Bridge.Int.mul(vectorY, vectorY)) | 0;
                 var dist = Math.sqrt(quadDist);
-                var affectPower = chargeValue;
+                var affectPower = this.GetPower(dist, chargeValue);
 
                 return new BrainAI.Pathfinding.Point.$ctor1(Bridge.Int.clip32(vectorX / dist * affectPower), Bridge.Int.clip32(vectorY / dist * affectPower));
+            },
+            GetPower: function (distance, chargeValue) {
+                return chargeValue;
             }
         }
     });
@@ -2633,7 +2674,10 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
         fields: {
             pow: 0
         },
-        alias: ["GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce"],
+        alias: [
+            "GetForce", "BrainAI$InfluenceMap$Fading$IFading$GetForce",
+            "GetPower", "BrainAI$InfluenceMap$Fading$IFading$GetPower"
+        ],
         ctors: {
             ctor: function (pow) {
                 this.$initialize();
@@ -2647,9 +2691,12 @@ Bridge.assembly("BrainAI", function ($asm, globals) {
 
                 var quadDist = (Bridge.Int.mul(vectorX, vectorX) + Bridge.Int.mul(vectorY, vectorY)) | 0;
                 var dist = Math.sqrt(quadDist);
-                var affectPower = chargeValue / Math.pow(quadDist, this.pow / 2);
+                var affectPower = this.GetPower(dist, chargeValue);
 
                 return new BrainAI.Pathfinding.Point.$ctor1(Bridge.Int.clip32(vectorX / dist * affectPower), Bridge.Int.clip32(vectorY / dist * affectPower));
+            },
+            GetPower: function (distance, chargeValue) {
+                return chargeValue / Math.pow(distance, this.pow);
             }
         }
     });

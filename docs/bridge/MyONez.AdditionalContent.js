@@ -2188,9 +2188,9 @@ Bridge.assembly("MyONez.AdditionalContent", function ($asm, globals) {
                 },
                 LoadDefaultStyles: function (sheet, entityName, themeRoot, content) {
                     var stylesheetBase = (themeRoot || "") + "styles/" + (entityName || "");
-                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-Default");
-                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseHover");
-                    content.Load(FaceUI.DataTypes.DefaultStyles, (stylesheetBase || "") + "-MouseDown");
+                    content.Load(FaceUI.DataTypes.DefaultStylesList, stylesheetBase);
+                    content.Load(FaceUI.DataTypes.DefaultStylesList, stylesheetBase);
+                    content.Load(FaceUI.DataTypes.DefaultStylesList, stylesheetBase);
                 }
             }
         }
